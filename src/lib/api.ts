@@ -1,8 +1,12 @@
 import axios from "axios";
 
+// If VITE_API_URL is set (Production), use it. 
+// Otherwise fall back to "/api" (Development/Proxy).
+const baseURL = import.meta.env.VITE_API_URL || "/api";
+
 //create an instance
 const api = axios.create({
-  baseURL: "/api", // The proxy handles the rest
+  baseURL: baseURL, // The proxy handles the rest
   headers: {
     "Content-Type": "application/json",
   },
