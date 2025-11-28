@@ -48,6 +48,9 @@ function UserAvatarMenu() {
       {/* Avatar Navigation */}
       <div className="flex items-center">
         <div className="flex items-center gap-4">
+           
+           {/* Right Side: User Info */}
+    
         <span className="text-sm text-gray-600 pr-1">
           Welcome, <strong>{user?.firstName}</strong>
         </span>

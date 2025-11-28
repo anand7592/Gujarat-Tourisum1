@@ -22,8 +22,7 @@ const Navbar = () => {
           <UserAvatarMenu />
         </div>
       </div>
-      {/* Right Side: User Info & Logout */}
-      
+     
     </nav>
   );
 };
