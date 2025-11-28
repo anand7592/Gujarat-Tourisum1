@@ -44,7 +44,7 @@ const Users = () => {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
 
   // Create User State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -72,7 +72,8 @@ const Users = () => {
     try {
       const { data } = await api.get("/users");
       setUsers(data);
-    } catch (err: any) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err: unknown) {
       setError("Failed to load users.");
     } finally {
       setLoading(false);
@@ -109,6 +110,7 @@ const Users = () => {
         address: "",
         isAdmin: false,
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to create user");
     }
@@ -118,6 +120,7 @@ const Users = () => {
       await api.delete(`/users/${userId}`);
       // Remove from list immediately
       setUsers(users.filter((u) => u._id !== userId));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to delete user");
     }
@@ -208,7 +211,7 @@ const Users = () => {
                 <Input
                   id="contact"
                   value={newUser.contactNo}
-                  onChange={(e) =>
+                  onChange={(e): void =>
                     setNewUser({ ...newUser, contactNo: e.target.value })
                   }
                 />
