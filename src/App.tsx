@@ -4,6 +4,7 @@ import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout'; // Import Layout
+import Users from './pages/users/Users';
 
 function App() {
   return (
@@ -19,6 +20,12 @@ function App() {
           
           {/* CONTENT LAYER: The actual pages */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/user" element={<Users />} />
+          <Route path="/dashboard/place" element={<Dashboard />} />
+          <Route path="/dashboard/subplace" element={<Dashboard />} />
+          <Route path="/dashboard/package" element={<Dashboard />} />
+          <Route path="/dashboard/hotel" element={<Dashboard />} />
+          <Route path="/dashboard/rating" element={<Dashboard />} />
           {/* You can add more pages here later, e.g.: */}
           {/* <Route path="/profile" element={<Profile />} /> */}
           
