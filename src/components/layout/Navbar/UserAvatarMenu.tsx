@@ -73,7 +73,7 @@ function UserAvatarMenu() {
             <DropdownMenuItem
               className="md:hidden cursor-pointer"
               // Update: Call handleNavigation with the route path
-              onClick={() => handleNavigation("/admin")} 
+              onClick={() => handleNavigation("/dashboard")} 
             >
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span>Dashboard</span>
@@ -82,7 +82,7 @@ function UserAvatarMenu() {
             <DropdownMenuItem
               className="md:hidden cursor-pointer"
               // Update: Call handleNavigation with the route path
-              onClick={() => handleNavigation("/admin/user")}
+              onClick={() => handleNavigation("/dashboard/user")}
             >
               <Users className="mr-2 h-4 w-4" />
               <span>Manage Users</span>
@@ -91,7 +91,7 @@ function UserAvatarMenu() {
             <DropdownMenuItem
               className="md:hidden cursor-pointer"
               // Update: Call handleNavigation with the route path
-              onClick={() => handleNavigation("/admin/place")}
+              onClick={() => handleNavigation("/dashboard/place")}
             >
               <MapPin className="mr-2 h-4 w-4" />
               <span>Manage Place</span>
@@ -100,7 +100,7 @@ function UserAvatarMenu() {
             <DropdownMenuItem
               className="md:hidden cursor-pointer"
               // Update: Call handleNavigation with the route path
-              onClick={() => handleNavigation("/admin/subplace")}
+              onClick={() => handleNavigation("/dashboard/subplace")}
             >
               <Map className="mr-2 h-4 w-4" />
               <span>Manage Sub Place</span>
@@ -109,7 +109,7 @@ function UserAvatarMenu() {
             <DropdownMenuItem
               className="md:hidden cursor-pointer"
               // Update: Call handleNavigation with the route path
-              onClick={() => handleNavigation("/admin/package")}
+              onClick={() => handleNavigation("/dashboard/package")}
             >
               <Package className="mr-2 h-4 w-4" />
               <span>Manage Package</span>
@@ -118,7 +118,7 @@ function UserAvatarMenu() {
             <DropdownMenuItem
               className="md:hidden cursor-pointer"
               // Update: Call handleNavigation with the route path
-              onClick={() => handleNavigation("/admin/hotel")}
+              onClick={() => handleNavigation("/dashboard/hotel")}
             >
               <Building2 className="mr-2 h-4 w-4" />
               <span>Manage Hotel</span>
@@ -127,7 +127,7 @@ function UserAvatarMenu() {
             <DropdownMenuItem
               className="md:hidden cursor-pointer"
               // Update: Call handleNavigation with the route path
-              onClick={() => handleNavigation("/admin/rating")}
+              onClick={() => handleNavigation("/dashboard/rating")}
             >
               <Star className="mr-2 h-4 w-4" />
               <span>Manage Rating</span>

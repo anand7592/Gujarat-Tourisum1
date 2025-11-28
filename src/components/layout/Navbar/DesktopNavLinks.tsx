@@ -14,7 +14,7 @@ function DesktopNavLinks() {
       {/* Desktop Menu */}
       <div className="hidden md:flex items-center space-x-6">
         <NavLink
-          to="/admin"
+          to="/dashboard"
           className="items-center gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
         >
           <LayoutDashboard className="w-4 h-4" />
@@ -22,7 +22,7 @@ function DesktopNavLinks() {
         </NavLink>
 
         <Link
-          to="/admin/user"
+          to="dashboard/user"
           className="items-center gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
         >
           <Users className="w-4 h-4" />
@@ -30,7 +30,7 @@ function DesktopNavLinks() {
         </Link>
 
         <Link
-          to="/admin/place"
+          to="/dashboard/place"
           className="items-center gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
         >
           <MapPin className="w-4 h-4" />
@@ -38,7 +38,7 @@ function DesktopNavLinks() {
         </Link>
 
         <Link
-          to="/admin/subplace"
+          to="/dashboard/subplace"
           className="items-center gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
         >
           <Map className="w-4 h-4" />
@@ -46,7 +46,7 @@ function DesktopNavLinks() {
         </Link>
 
         <Link
-          to="/admin/package"
+          to="/dashboard/package"
           className="items-center gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
         >
           <Package className="w-4 h-4" />
@@ -54,7 +54,7 @@ function DesktopNavLinks() {
         </Link>
 
         <Link
-          to="/admin/hotel"
+          to="/dashboard/hotel"
           className="items-center gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
         >
           <Building2 className="w-4 h-4" />
@@ -62,7 +62,7 @@ function DesktopNavLinks() {
         </Link>
 
         <Link
-          to="/admin/rating"
+          to="/dashboard/rating"
           className="items-center  gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
         >
           <Star className="w-4 h-4" />
