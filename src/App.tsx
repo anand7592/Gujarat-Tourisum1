@@ -8,6 +8,8 @@ import Users from './pages/users/Users';
 
 function App() {
   return (
+    <>
+ 
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -34,7 +36,7 @@ function App() {
       </Route>
 
       <Route path="/" element={<Navigate to="/login" replace />} />
-    </Routes>
+    </Routes></>
   );
 }
 

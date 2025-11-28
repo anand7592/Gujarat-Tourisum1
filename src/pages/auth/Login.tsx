@@ -51,7 +51,8 @@ export default function Login() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-100">
+    <div className="flex flex-col gap-2 h-screen items-center justify-center bg-gray-100">
+      <h1>Welcome to Gujarat Tourism</h1>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center text-2xl">Login</CardTitle>
