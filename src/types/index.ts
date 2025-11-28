@@ -14,3 +14,13 @@ export interface AuthResponse{
     token:string;
     user:User;
 }
+
+export interface Place {
+  createdBy: ReactNode;
+  _id: string;
+  name: string;
+  description: string;
+  location: string;
+  price: number;
+  image?: string;
+}
