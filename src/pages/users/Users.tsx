@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { User } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import { Trash2, Plus } from "lucide-react"; // Icons
+import { Trash2, Plus, Pencil } from "lucide-react"; // Icons
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,6 +58,10 @@ const Users = () => {
     isAdmin: false,
   });
 
+  // Edit User State
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+
   useEffect(() => {
     if (currentUser?.isAdmin) {
       fetchUsers();
@@ -72,7 +76,7 @@ const Users = () => {
     try {
       const { data } = await api.get("/users");
       setUsers(data);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err: unknown) {
       setError("Failed to load users.");
     } finally {
@@ -82,7 +86,6 @@ const Users = () => {
 
   const handleCreateUser = async () => {
     try {
-      // UPDATED VALIDATION CHECK
       if (
         !newUser.email ||
         !newUser.password ||
@@ -95,12 +98,10 @@ const Users = () => {
         return;
       }
 
-      // API Call
       const { data } = await api.post("/users", newUser);
 
-      setUsers([...users, data]);
+      setUsers((prev) => [...prev, data]);
       setIsCreateOpen(false);
-      // Reset form
       setNewUser({
         firstName: "",
         lastName: "",
@@ -115,14 +116,40 @@ const Users = () => {
       alert(err.response?.data?.message || "Failed to create user");
     }
   };
+
   const handleDeleteUser = async (userId: string) => {
     try {
       await api.delete(`/users/${userId}`);
-      // Remove from list immediately
-      setUsers(users.filter((u) => u._id !== userId));
+      setUsers((users) => users.filter((u) => u._id !== userId));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to delete user");
+    }
+  };
+
+  const openEditDialog = (user: User) => {
+    setEditUser(user);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editUser) return;
+
+    try {
+      const { _id, ...payload } = editUser;
+      // If your API expects only certain fields, trim payload accordingly
+      const { data } = await api.put(`/users/${_id}`, payload);
+
+      // Update user in local state
+      setUsers((prev) =>
+        prev.map((u) => (u._id === _id ? { ...u, ...data } : u))
+      );
+
+      setIsEditOpen(false);
+      setEditUser(null);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to update user");
     }
   };
 
@@ -251,6 +278,7 @@ const Users = () => {
                   <TableHead>Contact No</TableHead>
                   <TableHead>Address</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Edit</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -270,8 +298,17 @@ const Users = () => {
                         <Badge variant="secondary">User</Badge>
                       )}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEditDialog(u)}
+                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <Pencil size={16} />
+                      </Button>
+                    </TableCell>
                     <TableCell className="text-right">
-                      {/* DELETE CONFIRMATION DIALOG */}
                       {/* Prevent deleting yourself */}
                       {currentUser?._id !== u._id && (
                         <AlertDialog>
@@ -316,6 +353,83 @@ const Users = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* EDIT USER DIALOG */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update user details and save the changes.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editUser && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-fname">First Name</Label>
+                  <Input
+                    id="edit-fname"
+                    value={editUser.firstName}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, firstName: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-lname">Last Name</Label>
+                  <Input
+                    id="edit-lname"
+                    value={editUser.lastName}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, lastName: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editUser.email}
+                  onChange={(e) =>
+                    setEditUser({ ...editUser, email: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="edit-contact">Contact No</Label>
+                <Input
+                  id="edit-contact"
+                  value={editUser.contactNo || ""}
+                  onChange={(e) =>
+                    setEditUser({ ...editUser, contactNo: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="edit-address">Address</Label>
+                <Input
+                  id="edit-address"
+                  value={editUser.address || ""}
+                  onChange={(e) =>
+                    setEditUser({ ...editUser, address: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={handleUpdateUser}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
