@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Place } from "@/types";
-import { Edit, Trash2, MapPin, Eye } from "lucide-react";
+import { Edit, Trash2, MapPin, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -27,7 +27,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"; // <--- Import Dialog
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
 interface PlaceListProps {
@@ -40,6 +40,56 @@ interface PlaceListProps {
 const PlaceList = ({ places, isAdmin, onEdit, onDelete }: PlaceListProps) => {
   // State to track which image is being viewed
   const [viewImage, setViewImage] = useState<string | null>(null);
+  const [viewName, setViewName] = useState<string>("");
+
+  const handleOpenImage = (imageUrl: string, name: string) => {
+    setViewImage(imageUrl);
+    setViewName(name || "place");
+  };
+
+  const handleDownloadImage = async () => {
+    if (!viewImage) return;
+
+    // 1. Slugify the name: "Taj Mahal, Agra" -> "taj-mahal-agra"
+    const baseName =
+      viewName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/gi, "-")
+        .replace(/(^-|-$)/g, "") || "place";
+
+    // 2. Try to get extension from URL (before query params)
+    const urlWithoutQuery = viewImage.split("?")[0];
+    const extMatch = urlWithoutQuery.match(/\.[a-zA-Z0-9]+$/);
+    const ext = extMatch ? extMatch[0] : ".jpg";
+
+    const fileName = `${baseName}${ext}`;
+
+    try {
+      // 3. Fetch the image data (works with Cloudinary & other origins)
+      const response = await fetch(viewImage);
+      if (!response.ok) {
+        console.error("Failed to fetch image for download");
+        return;
+      }
+
+      // 4. Turn into Blob and object URL
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      // 5. Trigger download using the blob URL
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // 6. Cleanup
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+    }
+  };
 
   return (
     <>
@@ -64,7 +114,10 @@ const PlaceList = ({ places, isAdmin, onEdit, onDelete }: PlaceListProps) => {
             <TableBody>
               {places.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center h-24 text-gray-500">
+                  <TableCell
+                    colSpan={6}
+                    className="text-center h-24 text-gray-500"
+                  >
                     No places found. Add one above!
                   </TableCell>
                 </TableRow>
@@ -84,9 +137,11 @@ const PlaceList = ({ places, isAdmin, onEdit, onDelete }: PlaceListProps) => {
                     {/* CLICKABLE IMAGE THUMBNAIL */}
                     <TableCell>
                       {place.image ? (
-                        <div 
+                        <div
                           className="group relative h-12 w-20 cursor-pointer overflow-hidden rounded-md border bg-gray-100"
-                          onClick={() => setViewImage(place.image || "")}
+                          onClick={() =>
+                            handleOpenImage(place.image || "", place.name || "")
+                          }
                         >
                           <img
                             src={place.image}
@@ -123,7 +178,8 @@ const PlaceList = ({ places, isAdmin, onEdit, onDelete }: PlaceListProps) => {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This will permanently delete <strong>{place.name}</strong>.
+                                This will permanently delete{" "}
+                                <strong>{place.name}</strong>.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -161,27 +217,49 @@ const PlaceList = ({ places, isAdmin, onEdit, onDelete }: PlaceListProps) => {
       </Card>
 
       {/* --- IMAGE VIEWER MODAL --- */}
-      <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
+      <Dialog
+        open={!!viewImage}
+        onOpenChange={(open) => {
+          if (!open) {
+            setViewImage(null);
+            setViewName("");
+          }
+        }}
+      >
         <DialogContent className="max-w-4xl border-none bg-transparent shadow-none p-0">
           <DialogHeader className="sr-only">
-             <DialogTitle>View Image</DialogTitle>
+            <DialogTitle>View Image</DialogTitle>
           </DialogHeader>
           <div className="relative flex justify-center items-center">
             {viewImage && (
               <img
                 src={viewImage}
-                alt="Full View"
+                alt={viewName || "Full View"}
                 className="max-h-[85vh] w-auto max-w-full rounded-lg shadow-2xl"
               />
             )}
-            {/* Close hint */}
-            <Button 
-                className="absolute -top-10 right-0 rounded-full bg-white/20 hover:bg-white/40 text-white"
-                onClick={() => setViewImage(null)}
+            {/* Top-right controls: Download + Close */}
+            <div className="absolute -top-10 right-0 flex gap-2">
+              <Button
+                className="rounded-full bg-white/80 hover:bg-white text-gray-800 shadow"
                 variant="ghost"
-            >
+                onClick={handleDownloadImage}
+              >
+                <Download className="h-4 w-4 mr-1" />
+                Download
+              </Button>
+
+              <Button
+                className="rounded-full bg-white/20 hover:bg-white/40 text-white"
+                onClick={() => {
+                  setViewImage(null);
+                  setViewName("");
+                }}
+                variant="ghost"
+              >
                 Close
-            </Button>
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
