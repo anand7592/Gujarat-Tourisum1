@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Places = () => {
   const { user } = useAuth();
@@ -84,6 +85,18 @@ const Places = () => {
     }
   };
 
+   if (!user?.isAdmin) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertTitle>Access Denied</AlertTitle>
+          <AlertDescription>
+            Only Administrators can manage Places.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* 1. TOP SECTION: INSERT FORM */}
