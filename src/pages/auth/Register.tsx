@@ -33,15 +33,28 @@ export default function Register() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      address: "",
+      contactNo: "",
+      password: "",
+    },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const { data } = await api.post("/auth/register", values);
-      login(data.token, data.user);
+      
+      // FIX: The token is now in a Cookie.
+      // We only pass the user object to update the Context.
+      login(data.user); 
+      
       navigate("/dashboard");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
+      console.error(err);
       setError(err.response?.data?.message || "Registration failed");
     }
   };
