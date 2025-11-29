@@ -2,39 +2,23 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { Place } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import { Trash2, Plus, Pencil, MapPin } from "lucide-react";
-
-// UI Components
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PlaceForm from "./PlaceForm";
+import PlaceList from "./PlaceList";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea"; 
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const Places = () => {
-  const { user: currentUser } = useAuth();
+  const { user } = useAuth();
   const [places, setPlaces] = useState<Place[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // Form State
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    location: "",
-    price: 0,
-    image: "",
-  });
+  // Edit Modal State
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editData, setEditData] = useState<Partial<Place> | null>(null);
+  const [editImage, setEditImage] = useState<File | null>(null);
 
   useEffect(() => {
     fetchPlaces();
@@ -44,169 +28,126 @@ const Places = () => {
     try {
       const { data } = await api.get("/places");
       setPlaces(data);
-    } catch (err) {
-      console.error("Failed to load places");
+    } catch (error) {
+      console.error("Failed to fetch places", error);
+    }
+  };
+
+  // --- CREATE LOGIC (Passed to PlaceForm) ---
+  const handleCreate = async (formData: FormData) => {
+    try {
+      setLoading(true);
+      const { data } = await api.post("/places", formData);
+      setPlaces([data, ...places]); // Add new place to top of list
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Failed to create place");
     } finally {
       setLoading(false);
     }
   };
 
-  const openCreateDialog = () => {
-    setEditingId(null);
-    setFormData({ name: "", description: "", location: "", price: 0, image: "" });
-    setIsDialogOpen(true);
-  };
-
-  const openEditDialog = (place: Place) => {
-    setEditingId(place._id);
-    setFormData({
-      name: place.name,
-      description: place.description,
-      location: place.location,
-      price: place.price,
-      image: place.image || "",
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleSave = async () => {
-    try {
-      if (!formData.name || !formData.location || !formData.description) {
-        alert("Please fill in Name, Location, and Description.");
-        return;
-      }
-
-      if (editingId) {
-        // Update
-        const { data } = await api.put(`/places/${editingId}`, formData);
-        setPlaces(places.map((p) => (p._id === editingId ? data : p)));
-      } else {
-        // Create
-        const { data } = await api.post("/places", formData);
-        setPlaces([data, ...places]);
-      }
-      setIsDialogOpen(false);
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Operation failed");
-    }
-  };
-
+  // --- DELETE LOGIC (Passed to PlaceList) ---
   const handleDelete = async (id: string) => {
     try {
       await api.delete(`/places/${id}`);
       setPlaces(places.filter((p) => p._id !== id));
-    } catch (err: any) {
-      alert("Failed to delete");
+    } catch (error: any) {
+      alert("Failed to delete place");
+    }
+  };
+
+  // --- EDIT LOGIC (Handled here via Modal) ---
+  const openEditModal = (place: Place) => {
+    setEditData(place);
+    setEditImage(null);
+    setIsEditOpen(true);
+  };
+
+  const submitEdit = async () => {
+    if (!editData || !editData._id) return;
+
+    try {
+      const formData = new FormData();
+      if (editData.name) formData.append("name", editData.name);
+      if (editData.location) formData.append("location", editData.location);
+      if (editData.description) formData.append("description", editData.description);
+      if (editData.price) formData.append("price", editData.price.toString());
+      if (editImage) formData.append("image", editImage);
+
+      const { data } = await api.put(`/places/${editData._id}`, formData);
+      
+      // Update list
+      setPlaces(places.map((p) => (p._id === editData._id ? data : p)));
+      setIsEditOpen(false);
+    } catch (error: any) {
+      alert("Failed to update place");
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Destinations</h2>
-        {currentUser?.isAdmin && (
-          <Button onClick={openCreateDialog} className="gap-2">
-            <Plus size={16} /> Add Place
-          </Button>
-        )}
-      </div>
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* 1. TOP SECTION: INSERT FORM */}
+      {user?.isAdmin && (
+        <PlaceForm onPlaceCreated={handleCreate} isSubmitting={loading} />
+      )}
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+      {/* 2. BOTTOM SECTION: TABLE */}
+      <PlaceList 
+        places={places} 
+        isAdmin={!!user?.isAdmin} 
+        onEdit={openEditModal}
+        onDelete={handleDelete}
+      />
+
+      {/* 3. HIDDEN: EDIT MODAL (Pop up only when clicking pencil) */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Place" : "Add New Destination"}</DialogTitle>
+            <DialogTitle>Edit Place</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Place Name</Label>
-              <Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
+              <Label>Name</Label>
+              <Input 
+                value={editData?.name || ""} 
+                onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))} 
+              />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="loc">Location</Label>
-              <Input id="loc" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+              <Label>Location</Label>
+              <Input 
+                value={editData?.location || ""} 
+                onChange={(e) => setEditData(prev => ({ ...prev, location: e.target.value }))} 
+              />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="desc">Description</Label>
-              <Textarea id="desc" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+              <Label>Description</Label>
+              <Textarea 
+                value={editData?.description || ""} 
+                onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))} 
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="price">Price (₹)</Label>
-                <Input id="price" type="number" value={formData.price} onChange={(e) => setFormData({...formData, price: Number(e.target.value)})} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="img">Image URL</Label>
-                <Input id="img" placeholder="https://..." value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} />
-              </div>
+             <div className="grid gap-2">
+              <Label>Price</Label>
+              <Input 
+                type="number"
+                value={editData?.price || 0} 
+                onChange={(e) => setEditData(prev => ({ ...prev, price: Number(e.target.value) }))} 
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Change Image (Optional)</Label>
+              <Input 
+                type="file" 
+                onChange={(e) => e.target.files && setEditImage(e.target.files[0])} 
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleSave}>Save Destination</Button>
+            <Button onClick={submitEdit}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>All Locations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? <div>Loading...</div> : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>CreatedBy</TableHead>
-                  {currentUser?.isAdmin && <TableHead className="text-right">Actions</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-             
-                {places.map((p) => (
-                  console.log(p),
-                  <TableRow key={p._id}>
-                    <TableCell className="font-medium">{p.name}</TableCell>
-                    <TableCell className="flex items-center gap-1 text-gray-500">
-                      <MapPin size={14} /> {p.location}
-                    </TableCell>
-                    <TableCell>₹{p.price}</TableCell>
-                    <TableCell className="truncate max-w-[200px]">{p.description}</TableCell>
-                    <TableCell className="truncate max-w-[200px]">{p.createdBy?.email}</TableCell>
-                    
-                    {currentUser?.isAdmin && (
-                      <TableCell className="text-right space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(p)}>
-                          <Pencil size={16} className="text-blue-500" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 size={16} className="text-red-500" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Place?</AlertDialogTitle>
-                              <AlertDialogDescription>This will remove <strong>{p.name}</strong> permanently.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction className="bg-red-600" onClick={() => handleDelete(p._id)}>Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };

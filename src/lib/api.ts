@@ -7,9 +7,9 @@ const baseURL = import.meta.env.VITE_API_URL || "/api";
 //create an instance
 const api = axios.create({
   baseURL: baseURL, // The proxy handles the rest
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
 });
 
 // 1. Request Interceptor: Attach Token
