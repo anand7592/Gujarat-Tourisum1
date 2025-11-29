@@ -40,7 +40,8 @@ export default function Login() {
       const { data } = await api.post("/auth/login", values);
 
       // Save to Context
-      login(data.token, data.user);
+      // The token is in the cookie now, we just pass the user
+      login(data.user);
 
       // Redirect
       navigate("/dashboard");
