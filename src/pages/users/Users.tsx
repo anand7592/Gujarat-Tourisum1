@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import type { User } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import { Trash2, Plus, Pencil } from "lucide-react"; // Icons
+import { Trash2, Plus, Pencil } from "lucide-react";
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +26,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -38,7 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"; // npx shadcn@latest add alert-dialog
+} from "@/components/ui/alert-dialog";
 
 const Users = () => {
   const { user: currentUser } = useAuth();
@@ -46,21 +45,19 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [, setError] = useState("");
 
-  // Create User State
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newUser, setNewUser] = useState({
+  // --- UNIFIED FORM STATE (Cleaner & Less Code) ---
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // One state object for both Create and Edit
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    password: "", // Required for creation
+    password: "",
     contactNo: "",
     address: "",
-    isAdmin: false,
   });
-
-  // Edit User State
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editUser, setEditUser] = useState<User | null>(null);
 
   useEffect(() => {
     if (currentUser?.isAdmin) {
@@ -76,7 +73,6 @@ const Users = () => {
     try {
       const { data } = await api.get("/users");
       setUsers(data);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err: unknown) {
       setError("Failed to load users.");
     } finally {
@@ -84,36 +80,71 @@ const Users = () => {
     }
   };
 
-  const handleCreateUser = async () => {
+  // Prepare Form for CREATING
+  const openCreateDialog = () => {
+    setEditingId(null); // Null means "Create Mode"
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      contactNo: "",
+      address: "",
+    });
+    setIsDialogOpen(true);
+  };
+
+  // Prepare Form for EDITING
+  const openEditDialog = (user: User) => {
+    setEditingId(user._id); // ID exists means "Edit Mode"
+    setFormData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: "", // Empty means "Don't change password"
+      contactNo: user.contactNo,
+      address: user.address,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSaveUser = async () => {
     try {
-      if (
-        !newUser.email ||
-        !newUser.password ||
-        !newUser.firstName ||
-        !newUser.address
-      ) {
-        alert(
-          "Please fill in all required fields (Name, Email, Password, Address)."
-        );
+      // 1. Basic Validation
+      if (!formData.email || !formData.firstName || !formData.address) {
+        alert("Please fill in required fields (Name, Email, Address).");
         return;
       }
 
-      const { data } = await api.post("/users", newUser);
+      // 2. Password Validation (Required only for Create)
+      if (!editingId && !formData.password) {
+        alert("Password is required for new users.");
+        return;
+      }
 
-      setUsers((prev) => [...prev, data]);
-      setIsCreateOpen(false);
-      setNewUser({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        contactNo: "",
-        address: "",
-        isAdmin: false,
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (editingId) {
+        // --- UPDATE MODE ---
+        // Filter out empty password so we don't overwrite it with ""
+        const payload = { ...formData };
+        if (!payload.password) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          delete (payload as any).password;
+        }
+
+        const { data } = await api.put(`/users/${editingId}`, payload);
+        
+        // Update list immediately
+        setUsers((prev) => prev.map((u) => (u._id === editingId ? data : u)));
+      } else {
+        // --- CREATE MODE ---
+        const { data } = await api.post("/users", formData);
+        setUsers((prev) => [...prev, data]);
+      }
+
+      setIsDialogOpen(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to create user");
+      alert(err.response?.data?.message || "Operation failed");
     }
   };
 
@@ -121,39 +152,13 @@ const Users = () => {
     try {
       await api.delete(`/users/${userId}`);
       setUsers((users) => users.filter((u) => u._id !== userId));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       alert(err.response?.data?.message || "Failed to delete user");
     }
   };
 
-  const openEditDialog = (user: User) => {
-    setEditUser(user);
-    setIsEditOpen(true);
-  };
-
-  const handleUpdateUser = async () => {
-    if (!editUser) return;
-
-    try {
-      const { _id, ...payload } = editUser;
-      // If your API expects only certain fields, trim payload accordingly
-      const { data } = await api.put(`/users/${_id}`, payload);
-
-      // Update user in local state
-      setUsers((prev) =>
-        prev.map((u) => (u._id === _id ? { ...u, ...data } : u))
-      );
-
-      setIsEditOpen(false);
-      setEditUser(null);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to update user");
-    }
-  };
-
-  // --- RENDER HELPERS ---
+  // --- RENDER ---
 
   if (!currentUser?.isAdmin) {
     return (
@@ -170,96 +175,95 @@ const Users = () => {
 
   return (
     <div className="space-y-6">
-      {/* HEADER + CREATE BUTTON */}
+      {/* HEADER */}
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">User Management</h2>
+        <Button onClick={openCreateDialog} className="gap-2">
+          <Plus size={16} /> Add User
+        </Button>
+      </div>
 
-        {/* CREATE USER DIALOG */}
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus size={16} /> Add User
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>
-                Create a new account manually. They can log in immediately.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="fname">First Name</Label>
-                  <Input
-                    id="fname"
-                    value={newUser.firstName}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, firstName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="lname">Last Name</Label>
-                  <Input
-                    id="lname"
-                    value={newUser.lastName}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, lastName: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
+      {/* SHARED DIALOG (Handles both Create & Edit) */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit User" : "Add New User"}</DialogTitle>
+            <DialogDescription>
+              {editingId 
+                ? "Update details. Leave password blank to keep current one." 
+                : "Create a new account manually."}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="fname">First Name</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, email: e.target.value })
-                  }
+                  id="fname"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="pass">Password</Label>
+                <Label htmlFor="lname">Last Name</Label>
                 <Input
-                  id="pass"
-                  type="password"
-                  value={newUser.password}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, password: e.target.value })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="contact">Contact No</Label>
-                <Input
-                  id="contact"
-                  value={newUser.contactNo}
-                  onChange={(e): void =>
-                    setNewUser({ ...newUser, contactNo: e.target.value })
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={newUser.address}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, address: e.target.value })
-                  }
+                  id="lname"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button onClick={handleCreateUser}>Create Account</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="pass">
+                {editingId ? "New Password (Optional)" : "Password"}
+              </Label>
+              <Input
+                id="pass"
+                type="password"
+                placeholder={editingId ? "Leave blank to keep current" : ""}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="contact">Contact No</Label>
+              <Input
+                id="contact"
+                value={formData.contactNo}
+                onChange={(e) => setFormData({ ...formData, contactNo: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button onClick={handleSaveUser}>
+              {editingId ? "Save Changes" : "Create Account"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* USER LIST */}
       <Card>
@@ -309,7 +313,6 @@ const Users = () => {
                       </Button>
                     </TableCell>
                     <TableCell className="text-right">
-                      {/* Prevent deleting yourself */}
                       {currentUser?._id !== u._id && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -323,14 +326,9 @@ const Users = () => {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you absolutely sure?
-                              </AlertDialogTitle>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete
-                                <strong> {u.firstName}'s</strong> account and
-                                remove their data from our servers.
+                                This will permanently delete <strong>{u.firstName}</strong>.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -353,83 +351,6 @@ const Users = () => {
           )}
         </CardContent>
       </Card>
-
-      {/* EDIT USER DIALOG */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>
-              Update user details and save the changes.
-            </DialogDescription>
-          </DialogHeader>
-
-          {editUser && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-fname">First Name</Label>
-                  <Input
-                    id="edit-fname"
-                    value={editUser.firstName}
-                    onChange={(e) =>
-                      setEditUser({ ...editUser, firstName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-lname">Last Name</Label>
-                  <Input
-                    id="edit-lname"
-                    value={editUser.lastName}
-                    onChange={(e) =>
-                      setEditUser({ ...editUser, lastName: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="edit-email">Email</Label>
-                <Input
-                  id="edit-email"
-                  type="email"
-                  value={editUser.email}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, email: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="edit-contact">Contact No</Label>
-                <Input
-                  id="edit-contact"
-                  value={editUser.contactNo || ""}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, contactNo: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="edit-address">Address</Label>
-                <Input
-                  id="edit-address"
-                  value={editUser.address || ""}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, address: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button onClick={handleUpdateUser}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+// We don't need 'login' from useAuth anymore for this page
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,6 @@ const formSchema = z.object({
 });
 
 export default function Register() {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
 
@@ -45,14 +44,15 @@ export default function Register() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { data } = await api.post("/auth/register", values);
+      // 1. Send data to backend
+      await api.post("/auth/register", values);
       
-      // FIX: The token is now in a Cookie.
-      // We only pass the user object to update the Context.
-      login(data.user); 
-      
-      navigate("/dashboard");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // 2. Success Feedback
+      alert("Registration Successful! Please login.");
+
+      // 3. Redirect to Login instead of Dashboard
+      navigate("/login");
+
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || "Registration failed");

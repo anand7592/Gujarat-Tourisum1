@@ -1,14 +1,12 @@
-import { createContext, useContext, useState } from "react";
-// FIX 1: Use 'import type' for types
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { User } from "@/types";
-import api from "@/lib/api"; // Import API to call logout endpoint
+import api from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;
-  // REMOVED: token string (Browser handles this now)
-  login: (user: User) => void; // REMOVED: token argument
-  logout: () => Promise<void>; // CHANGED: async to call server
+  login: (user: User) => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -16,35 +14,61 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // 1. LAZY INITIALIZATION
-  // We only care about the USER object for the UI (Name, Email, etc.)
-  // The Token is hidden in a cookie.
+  // 1. Optimistic Initialization
+  // We load from localStorage so the UI doesn't flicker, 
+  // BUT we treat this as "Potentially Fake Data"
   const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  // Loading is false by default since we read synchronous localStorage
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 2. THE SECURITY FIX: Verify with Server on Mount
+  useEffect(() => {
+    const verifyUser = async () => {
+      try {
+        // We ask the backend: "Based on the HttpOnly cookie, who is this?"
+        // This request sends the secure cookie automatically.
+        const { data } = await api.get("/auth/me");
+        
+        // SERVER IS THE TRUTH. Update state with real data.
+        setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user)); // Sync local storage
+      } catch (error) {
+        // If backend says 401 (Cookie invalid/expired) or fails:
+        // The user is not logged in, even if localStorage says they are.
+        console.error("Session verification failed", error);
+        setUser(null);
+        localStorage.removeItem("user");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Only run verification if we think we have a user
+    if (user) {
+      verifyUser();
+    } else {
+      setIsLoading(false);
+    }
+  }, []); // Run once on app load
 
   const login = (newUser: User) => {
-    // We only store non-sensitive user data in localStorage so the UI works
     localStorage.setItem("user", JSON.stringify(newUser));
     setUser(newUser);
   };
 
   const logout = async () => {
     try {
-      // 1. Call Backend to clear the HttpOnly Cookie
-      // (Ensure your backend has a GET /api/auth/logout route)
       await api.get("/auth/logout");
     } catch (error) {
       console.error("Logout failed", error);
     } finally {
-      // 2. Clear Local Frontend State
       localStorage.removeItem("user");
       setUser(null);
-      // Optional: Redirect to login is handled by the component calling logout
+      // Force redirect to ensure clean state
+      window.location.href = "/login";
     }
   };
 
@@ -54,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         login,
         logout,
-        isAuthenticated: !!user, // If we have a user object, we assume we are logged in
+        isAuthenticated: !!user,
         isLoading,
       }}
     >
@@ -63,7 +87,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Disable Fast Refresh warning for export
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
