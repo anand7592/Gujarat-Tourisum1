@@ -25,3 +25,18 @@ export interface Place {
   price: number;
   image?: string;
 }
+
+export interface SubPlace {
+  _id: string;
+  name: string;
+  description: string;
+  place: Place; 
+  location: string;
+  image?: string;
+  entryFee: number;
+  openTime: string;
+  closeTime: string;
+  bestTimeToVisit: string;
+  features: string[];
+  createdAt?: string;
+}
