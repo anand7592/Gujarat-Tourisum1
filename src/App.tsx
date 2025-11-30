@@ -6,8 +6,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout'; // Import Layout
 import Users from './pages/users/Users';
 import Place from './pages/place/Place';
-import SubPlaces from './pages/subPlace/subPlace';
+import SubPlaces from './pages/subPlace/SubPlace';
 import Hotels from './pages/hotels/Hotel';
+import Ratings from './pages/Ratings/Ratings';
 
 function App() {
   return (
@@ -30,7 +31,7 @@ function App() {
           <Route path="/dashboard/subplace" element={<SubPlaces />} />
           <Route path="/dashboard/package" element={<Dashboard />} />
           <Route path="/dashboard/hotel" element={<Hotels />} />
-          <Route path="/dashboard/rating" element={<Dashboard />} />
+          <Route path="/dashboard/rating" element={<Ratings />} />
           {/* You can add more pages here later, e.g.: */}
           {/* <Route path="/profile" element={<Profile />} /> */}
           

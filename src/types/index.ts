@@ -10,10 +10,10 @@ export interface User {
   createdAt?: string; // Optional: good for display
 }
 
-export interface AuthResponse{
-    message:string;
-    token:string;
-    user:User;
+export interface AuthResponse {
+  message: string;
+  token: string;
+  user: User;
 }
 
 export interface Place {
@@ -30,7 +30,7 @@ export interface SubPlace {
   _id: string;
   name: string;
   description: string;
-  place: Place; 
+  place: Place;
   location: string;
   image?: string;
   entryFee: number;
@@ -68,4 +68,24 @@ export interface Hotel {
   isActive: boolean;
   createdBy: User;
   createdAt?: string;
+}
+
+export interface Rating {
+  _id: string;
+  user: User;
+  ratingType: "Hotel" | "Place" | "SubPlace";
+  hotel?: Hotel;
+  place?: Place;
+  subPlace?: SubPlace;
+  rating: number; // 1-5
+  title: string;
+  comment: string;
+  cleanliness?: number;
+  service?: number;
+  location?: number;
+  valueForMoney?: number;
+  images: string[];
+  helpfulCount: number;
+  adminResponse?: string;
+  createdAt: string;
 }
