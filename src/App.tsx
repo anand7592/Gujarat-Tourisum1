@@ -6,9 +6,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout'; // Import Layout
 import Users from './pages/users/Users';
 import Place from './pages/place/Place';
+import Ratings from './pages/Ratings/Ratings';
 import SubPlaces from './pages/subPlace/SubPlace';
 import Hotels from './pages/hotels/Hotel';
-import Ratings from './pages/Ratings/Ratings';
 
 function App() {
   return (
