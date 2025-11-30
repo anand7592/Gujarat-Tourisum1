@@ -336,19 +336,20 @@ const HotelForm = ({
             {roomTypes.map((room, idx) => (
               <div
                 key={idx}
-                className="flex gap-4 items-end bg-white p-3 rounded border"
+                className="flex flex-col sm:flex-row gap-4 sm:items-end bg-white p-3 rounded border"
               >
                 <div className="flex-1 space-y-1">
-                  <Label className="text-xs">Room Name</Label>
+                  <Label className="text-xs font-medium">Room Name</Label>
                   <Input
                     value={room.name}
                     onChange={(e) =>
                       handleRoomChange(idx, "name", e.target.value)
                     }
+                    placeholder="e.g. Deluxe Room"
                   />
                 </div>
-                <div className="w-24 space-y-1">
-                  <Label className="text-xs">Price</Label>
+                <div className="w-full sm:w-24 space-y-1">
+                  <Label className="text-xs font-medium">Price (₹)</Label>
                   <Input
                     type="number"
                     value={room.pricePerNight}
@@ -359,28 +360,32 @@ const HotelForm = ({
                         Number(e.target.value)
                       )
                     }
+                    placeholder="2000"
                   />
                 </div>
-                <div className="w-20 space-y-1">
-                  <Label className="text-xs">Guests</Label>
+                <div className="w-full sm:w-20 space-y-1">
+                  <Label className="text-xs font-medium">Max Guests</Label>
                   <Input
                     type="number"
                     value={room.maxGuests}
                     onChange={(e) =>
                       handleRoomChange(idx, "maxGuests", Number(e.target.value))
                     }
+                    placeholder="2"
                   />
                 </div>
                 {roomTypes.length > 1 && (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    className="text-red-500"
-                    onClick={() => removeRoom(idx)}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <div className="flex justify-end sm:justify-center">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeRoom(idx)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 )}
               </div>
             ))}
