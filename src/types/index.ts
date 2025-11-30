@@ -40,3 +40,32 @@ export interface SubPlace {
   features: string[];
   createdAt?: string;
 }
+
+export interface RoomType {
+  name: string; // e.g. "Deluxe"
+  pricePerNight: number;
+  maxGuests: number;
+  bedType?: string;
+  amenities?: string[]; // ["TV", "AC"]
+}
+
+export interface Hotel {
+  _id: string;
+  name: string;
+  description: string;
+  place: Place; // Populated
+  location: string;
+  address: string;
+  contactNo: string;
+  email?: string;
+  website?: string;
+  images: string[];
+  pricePerNight: number;
+  category: "Budget" | "Mid-Range" | "Luxury" | "Resort" | "Boutique";
+  amenities: string[];
+  roomTypes: RoomType[];
+  averageRating: number;
+  isActive: boolean;
+  createdBy: User;
+  createdAt?: string;
+}

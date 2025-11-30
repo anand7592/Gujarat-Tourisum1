@@ -7,6 +7,7 @@ import DashboardLayout from './components/layout/DashboardLayout'; // Import Lay
 import Users from './pages/users/Users';
 import Place from './pages/place/Place';
 import SubPlaces from './pages/subPlace/subPlace';
+import Hotels from './pages/hotels/Hotel';
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
           <Route path="/dashboard/place" element={<Place />} />
           <Route path="/dashboard/subplace" element={<SubPlaces />} />
           <Route path="/dashboard/package" element={<Dashboard />} />
-          <Route path="/dashboard/hotel" element={<Dashboard />} />
+          <Route path="/dashboard/hotel" element={<Hotels />} />
           <Route path="/dashboard/rating" element={<Dashboard />} />
           {/* You can add more pages here later, e.g.: */}
           {/* <Route path="/profile" element={<Profile />} /> */}
