@@ -78,10 +78,17 @@ const Payment = () => {
     script.async = true;
     document.body.appendChild(script);
     
+    // Debug: Log current environment configuration
+    console.log('Payment Environment Debug:', {
+      apiUrl: import.meta.env.VITE_API_URL,
+      razorpayKey: import.meta.env.VITE_RAZORPAY_KEY_ID ? 'Configured' : 'Not configured',
+      bookingId: bookingId
+    });
+    
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, [bookingId]);
 
   const fetchBooking = async (id: string) => {
     try {
@@ -102,6 +109,18 @@ const Payment = () => {
       const response = await api.post(`/bookings/${bookingId}/create-order`);
       return response.data.orderId;
     } catch (error: unknown) {
+      // Check if it's a 403/404 error (API not implemented or authentication issue)
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number; data?: any } };
+        if (axiosError.response?.status === 403) {
+          console.error('403 Forbidden - Authentication or authorization failed:', axiosError.response?.data);
+          throw new Error('BACKEND_NOT_READY');
+        }
+        if (axiosError.response?.status === 404) {
+          console.error('404 Not Found - API endpoint not implemented:', axiosError.response?.data);
+          throw new Error('BACKEND_NOT_READY');
+        }
+      }
       const errorMessage = error instanceof Error ? error.message : "Failed to create payment order";
       throw new Error(errorMessage);
     }
@@ -115,6 +134,18 @@ const Payment = () => {
       });
       return response.data;
     } catch (error: unknown) {
+      // Check if it's a 403/404 error (API not implemented or authentication issue)
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number; data?: any } };
+        if (axiosError.response?.status === 403) {
+          console.error('403 Forbidden - Payment verification failed:', axiosError.response?.data);
+          throw new Error('BACKEND_NOT_READY');
+        }
+        if (axiosError.response?.status === 404) {
+          console.error('404 Not Found - Payment verification endpoint not found:', axiosError.response?.data);
+          throw new Error('BACKEND_NOT_READY');
+        }
+      }
       const errorMessage = error instanceof Error ? error.message : "Payment verification failed";
       throw new Error(errorMessage);
     }
@@ -167,9 +198,38 @@ const Payment = () => {
         }
       }
       
-      // Create Razorpay order
-      const orderId = await createRazorpayOrder();
-      console.log('Created Razorpay order:', orderId);
+      // Try to create Razorpay order
+      let orderId;
+      try {
+        orderId = await createRazorpayOrder();
+        console.log('Created Razorpay order:', orderId);
+      } catch (error: unknown) {
+        // If backend is not ready, offer development mode
+        if (error instanceof Error && error.message === 'BACKEND_NOT_READY') {
+          const useTestMode = confirm(
+            'Backend payment API not ready or authentication failed.\n\n' +
+            'This might be because:\n' +
+            '• Backend booking endpoints are not implemented\n' +
+            '• Authentication token is expired or invalid\n' +
+            '• CORS issues with the deployed backend\n\n' +
+            'Click OK to simulate payment success (development mode)\n' +
+            'Click Cancel to configure Razorpay properly'
+          );
+          
+          if (useTestMode) {
+            // Simulate payment success
+            setTimeout(() => {
+              alert('Payment simulated successfully! (Development Mode - Backend Not Ready)');
+              navigate('/dashboard/bookings');
+              setProcessing(false);
+            }, 2000);
+            return;
+          } else {
+            throw new Error('Backend payment system not ready. Please implement booking API endpoints or check authentication.');
+          }
+        }
+        throw error;
+      }
 
       const options: RazorpayOptions = {
         key: razorpayKey,
@@ -195,13 +255,34 @@ const Payment = () => {
             };
             
             console.log('Sending payment verification:', paymentData);
-            await verifyPayment(paymentData);
-
-            // Show success message
-            alert('Payment successful! Your booking has been confirmed.');
             
-            // Redirect to bookings page
-            navigate('/dashboard/bookings');
+            try {
+              await verifyPayment(paymentData);
+              // Show success message
+              alert('Payment successful! Your booking has been confirmed.');
+              // Redirect to bookings page
+              navigate('/dashboard/bookings');
+            } catch (verifyError: unknown) {
+              // If verification fails due to backend issues, offer simulation
+              if (verifyError instanceof Error && verifyError.message === 'BACKEND_NOT_READY') {
+                const useTestMode = confirm(
+                  'Payment completed but verification failed due to backend issues.\n\n' +
+                  'Payment ID: ' + response.razorpay_payment_id + '\n\n' +
+                  'Click OK to simulate payment success (development mode)\n' +
+                  'Click Cancel to see the error'
+                );
+                
+                if (useTestMode) {
+                  alert('Payment verification simulated successfully! (Development Mode)\nPayment ID: ' + response.razorpay_payment_id);
+                  navigate('/dashboard/bookings');
+                  return;
+                }
+              }
+              
+              const errorMessage = verifyError instanceof Error ? verifyError.message : "Payment verification failed";
+              setError(errorMessage);
+              setProcessing(false);
+            }
           } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Payment verification failed";
             setError(errorMessage);
