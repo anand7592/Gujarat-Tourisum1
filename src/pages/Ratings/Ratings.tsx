@@ -4,7 +4,7 @@ import type { Rating, Hotel, Place, SubPlace } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { StarRating } from "@/components/ratings/star-rating";
 import AddRatingDialog from "@/components/ratings/AddRatingDialog"; // Import the form
-import { Trash2, MessageSquare, Plus } from "lucide-react";
+import { Trash2, MessageSquare, Plus, Loader2 } from "lucide-react";
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
