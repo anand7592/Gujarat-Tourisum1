@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -54,39 +55,32 @@ const PackagePage = () => {
   const fetchPackages = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/packages");
-      if (response.ok) {
-        const data = await response.json();
+      const { data } = await api.get("/packages");
         
-        // Debug: Log the API response structure
-        console.log('🌐 API Response:', data);
-        console.log('🌐 Response structure:', {
-          isArray: Array.isArray(data),
-          hasPackages: 'packages' in data,
-          keys: Object.keys(data || {}),
-          dataType: typeof data,
-          firstItem: Array.isArray(data) ? data[0] : data.packages?.[0]
-        });
-        
-        // Handle different response structures from backend
-        let packagesArray = [];
-        if (Array.isArray(data)) {
-          packagesArray = data;
-        } else if (data && data.packages && Array.isArray(data.packages)) {
-          packagesArray = data.packages;
-        } else if (data && typeof data === 'object') {
-          // If it's a single package object, wrap it in an array
-          packagesArray = [data];
-        }
-        
-        console.log('📦 Processed packages:', packagesArray);
-        setPackages(packagesArray);
-        calculateStats(packagesArray);
-      } else {
-        console.error("Failed to fetch packages:", response.statusText);
-        setPackages([]);
-        calculateStats([]);
+      // Debug: Log the API response structure
+      console.log('🌐 API Response:', data);
+      console.log('🌐 Response structure:', {
+        isArray: Array.isArray(data),
+        hasPackages: 'packages' in data,
+        keys: Object.keys(data || {}),
+        dataType: typeof data,
+        firstItem: Array.isArray(data) ? data[0] : data.packages?.[0]
+      });
+      
+      // Handle different response structures from backend
+      let packagesArray = [];
+      if (Array.isArray(data)) {
+        packagesArray = data;
+      } else if (data && data.packages && Array.isArray(data.packages)) {
+        packagesArray = data.packages;
+      } else if (data && typeof data === 'object') {
+        // If it's a single package object, wrap it in an array
+        packagesArray = [data];
       }
+      
+      console.log('📦 Processed packages:', packagesArray);
+      setPackages(packagesArray);
+      calculateStats(packagesArray);
     } catch (error) {
       console.error("Error fetching packages:", error);
       setPackages([]);
@@ -180,13 +174,8 @@ const PackagePage = () => {
 
   const handleDeletePackage = async (id: string) => {
     try {
-      const response = await fetch(`/api/packages/${id}`, {
-        method: "DELETE",
-      });
-      
-      if (response.ok) {
-        setPackages(packages.filter(p => p._id !== id));
-      }
+      await api.delete(`/packages/${id}`);
+      setPackages(packages.filter(p => p._id !== id));
     } catch (error) {
       console.error("Error deleting package:", error);
       // For now, just remove from state
@@ -197,30 +186,23 @@ const PackagePage = () => {
   const handleFormSubmit = async (formData: FormData, isUpdate: boolean) => {
     try {
       const url = isUpdate && editingPackage 
-        ? `/api/packages/${editingPackage._id}`
-        : "/api/packages";
+        ? `/packages/${editingPackage._id}`
+        : "/packages";
       
-      const method = isUpdate ? "PUT" : "POST";
+      const { data: savedPackage } = isUpdate 
+        ? await api.put(url, formData)
+        : await api.post(url, formData);
       
-      const response = await fetch(url, {
-        method,
-        body: formData, // Send FormData directly for file uploads
-      });
-
-      if (response.ok) {
-        const savedPackage = await response.json();
-        
-        if (isUpdate && editingPackage) {
-          setPackages(packages.map(p => 
-            p._id === editingPackage._id ? savedPackage : p
-          ));
-        } else {
-          setPackages([...packages, savedPackage]);
-        }
-        
-        setShowForm(false);
-        setEditingPackage(null);
+      if (isUpdate && editingPackage) {
+        setPackages(packages.map(p => 
+          p._id === editingPackage._id ? savedPackage : p
+        ));
+      } else {
+        setPackages([...packages, savedPackage]);
       }
+      
+      setShowForm(false);
+      setEditingPackage(null);
     } catch (error) {
       console.error("Error saving package:", error);
       alert('Error saving package. Please try again.');
