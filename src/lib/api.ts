@@ -11,18 +11,31 @@ const api = axios.create({
   // Axios automatically detects JSON vs Files if we leave it undefined.
 });
 
+// Request Interceptor: Add JWT token to requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Response Interceptor: Handle Token Expiry
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If backend says "401 Unauthorized" (Cookie expired/missing)
+    // If backend says "401 Unauthorized" (Token expired/missing)
     if (error.response?.status === 401) {
-      // Clear any local user data
+      // Clear any local user data and token
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
       
       // Redirect to login (unless already on login/register page)
-      if (!["/login", "/register"].includes(window.location.pathname)) {
-        window.location.href = "/login";
+      if (!['/login', '/register'].includes(window.location.pathname)) {
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);

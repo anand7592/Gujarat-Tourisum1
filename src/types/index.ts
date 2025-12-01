@@ -7,6 +7,7 @@ export interface User {
   contactNo: string;
   address: string;
   isAdmin: boolean;
+  role?: 'admin' | 'user'; // Optional role property
   createdAt?: string; // Optional: good for display
 }
 
@@ -88,4 +89,49 @@ export interface Rating {
   helpfulCount: number;
   adminResponse?: string;
   createdAt: string;
+}
+
+export interface Booking {
+  _id: string;
+  user: User;
+  hotel: Hotel;
+  checkInDate: string;
+  checkOutDate: string;
+  numberOfNights: number;
+  roomType: string;
+  numberOfRooms: number;
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  numberOfGuests: number;
+  specialRequests?: string;
+  pricePerNight: number;
+  totalAmount: number;
+  taxAmount: number;
+  finalAmount: number;
+  paymentStatus: "Pending" | "Paid" | "Failed" | "Refunded";
+  paymentMethod: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  bookingStatus: "Confirmed" | "Pending" | "Cancelled" | "Completed";
+  cancellationReason?: string;
+  cancelledAt?: string;
+  refundAmount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookingFormData {
+  hotel: string;
+  checkInDate: string;
+  checkOutDate: string;
+  roomType: string;
+  numberOfRooms: number;
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  numberOfGuests: number;
+  specialRequests?: string;
+  pricePerNight: number;
+  paymentMethod: string;
 }

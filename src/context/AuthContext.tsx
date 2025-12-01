@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Logout failed", error);
     } finally {
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
       setUser(null);
       // Force redirect to ensure clean state
       window.location.href = "/login";

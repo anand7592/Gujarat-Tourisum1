@@ -9,6 +9,10 @@ import Place from './pages/place/Place';
 import Ratings from './pages/Ratings/Ratings';
 import SubPlaces from './pages/subPlace/SubPlace';
 import Hotels from './pages/hotels/Hotel';
+import Bookings from './pages/bookings/Bookings';
+import Payment from './pages/bookings/Payment';
+import './lib/debugAuth'; // Import debug utilities
+import './lib/testRazorpay'; // Import Razorpay test utilities
 
 function App() {
   return (
@@ -32,6 +36,8 @@ function App() {
           <Route path="/dashboard/package" element={<Dashboard />} />
           <Route path="/dashboard/hotel" element={<Hotels />} />
           <Route path="/dashboard/rating" element={<Ratings />} />
+          <Route path="/dashboard/bookings" element={<Bookings />} />
+          <Route path="/dashboard/booking/:bookingId/payment" element={<Payment />} />
           {/* You can add more pages here later, e.g.: */}
           {/* <Route path="/profile" element={<Profile />} /> */}
           

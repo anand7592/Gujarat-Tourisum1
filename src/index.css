@@ -118,3 +118,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom date input styles */
+.date-input-custom {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.date-input-custom::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.date-input-custom:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}

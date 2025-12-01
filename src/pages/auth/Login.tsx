@@ -42,8 +42,10 @@ export default function Login() {
       // Call Backend
       const { data } = await api.post("/auth/login", values);
 
-      // Save to Context
-      // The token is in the cookie now, we just pass the user
+      // Save JWT token and user data
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
       login(data.user);
 
       // Redirect

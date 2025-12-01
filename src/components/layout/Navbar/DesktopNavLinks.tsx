@@ -6,6 +6,7 @@ import {
   Package,
   Building2,
   Star,
+  Calendar,
 } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 function DesktopNavLinks() {
@@ -67,6 +68,14 @@ function DesktopNavLinks() {
         >
           <Star className="w-4 h-4" />
           <span>Rating</span>
+        </Link>
+
+        <Link
+          to="/dashboard/bookings"
+          className="items-center gap-2 hover:text-blue-400 transition-colors whitespace-nowrap"
+        >
+          <Calendar className="w-4 h-4" />
+          <span>Bookings</span>
         </Link>
       </div>
     </div>
