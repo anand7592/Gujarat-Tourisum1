@@ -264,11 +264,11 @@ const PackagePage = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Package2 className="h-8 w-8" />
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            <Package2 className="h-6 w-6 md:h-8 md:w-8" />
             Tour Packages
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm md:text-base text-gray-600 mt-1">
             {isAdmin 
               ? "Manage your tour packages and track bookings"
               : "Explore available tour packages"
@@ -278,7 +278,7 @@ const PackagePage = () => {
         </div>
         
         {isAdmin && (
-          <Button onClick={handleCreatePackage} size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3">
+          <Button onClick={handleCreatePackage} size="lg" className="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3">
             <Plus className="h-5 w-5 mr-2" />
             Add New Package
           </Button>
@@ -287,60 +287,60 @@ const PackagePage = () => {
 
       {/* Statistics Cards */}
       {isAdmin && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Packages</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+              <CardTitle className="text-xs md:text-sm font-medium">Total Packages</CardTitle>
               <Package2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalPackages}</div>
+            <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+              <div className="text-xl md:text-2xl font-bold">{stats.totalPackages}</div>
               <p className="text-xs text-muted-foreground">
-                {stats.activePackages} active packages
+                {stats.activePackages} active
               </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+              <CardTitle className="text-xs md:text-sm font-medium">Bookings</CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalBookings}</div>
+            <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+              <div className="text-xl md:text-2xl font-bold">{stats.totalBookings}</div>
               <p className="text-xs text-muted-foreground">
-                Across all packages
+                All packages
               </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+              <CardTitle className="text-xs md:text-sm font-medium">Revenue</CardTitle>
               <IndianRupee className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
+            <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+              <div className="text-lg md:text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
               <p className="text-xs text-muted-foreground">
-                From package bookings
+                From bookings
               </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Booking Rate</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+              <CardTitle className="text-xs md:text-sm font-medium">Avg. Rate</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+              <div className="text-xl md:text-2xl font-bold">
                 {stats.totalPackages > 0 
                   ? Math.round((stats.totalBookings / stats.totalPackages) * 100) / 100
                   : 0
                 }
               </div>
               <p className="text-xs text-muted-foreground">
-                Bookings per package
+                Per package
               </p>
             </CardContent>
           </Card>
@@ -356,8 +356,8 @@ const PackagePage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
+          <div className="flex flex-col gap-4">
+            <div className="w-full">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -369,9 +369,9 @@ const PackagePage = () => {
               </div>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-full sm:w-[150px]">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -390,7 +390,7 @@ const PackagePage = () => {
               </Select>
 
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-full sm:w-[120px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -401,7 +401,7 @@ const PackagePage = () => {
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-full sm:w-[120px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -425,7 +425,7 @@ const PackagePage = () => {
               {isAdmin && (
                 <Button
                   onClick={handleCreatePackage}
-                  className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
+                  className="hidden sm:flex bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Quick Add

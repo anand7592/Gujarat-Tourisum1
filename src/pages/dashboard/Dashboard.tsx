@@ -326,12 +326,12 @@ function Dashboard() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-sm md:text-base text-gray-600">
             Welcome back, {user?.firstName}! Here's what's happening with Gujarat Tourism.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={fetchDashboardData} variant="outline" className="gap-2" disabled={loading}>
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -364,20 +364,20 @@ function Dashboard() {
       )} */}
 
       {/* Overview Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 md:gap-4 lg:grid-cols-4">
         {/* Total Revenue */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {user?.isAdmin ? "Total Revenue (All Users)" : "Your Total Spending"}
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+            <CardTitle className="text-xs md:text-sm font-medium">
+              {user?.isAdmin ? "Total Revenue" : "Total Spending"}
             </CardTitle>
             <IndianRupee className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+          <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+            <div className="text-lg md:text-2xl font-bold text-green-600">
               {formatCurrency(stats.totalRevenue)}
             </div>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 truncate">
               This month: {formatCurrency(stats.monthlyRevenue)}
             </p>
           </CardContent>
@@ -385,14 +385,14 @@ function Dashboard() {
 
         {/* Total Bookings */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {user?.isAdmin ? "Total Bookings (All Users)" : "Your Bookings"}
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+            <CardTitle className="text-xs md:text-sm font-medium">
+              {user?.isAdmin ? "Bookings" : "Bookings"}
             </CardTitle>
             <Calendar className="h-4 w-4 text-blue-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalBookings}</div>
+          <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+            <div className="text-lg md:text-2xl font-bold">{stats.totalBookings}</div>
             <p className="text-xs text-gray-600 flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
               {stats.monthlyBookings} this month
@@ -402,31 +402,31 @@ function Dashboard() {
 
         {/* Total Hotels */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hotels</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+            <CardTitle className="text-xs md:text-sm font-medium">Hotels</CardTitle>
             <Building2 className="h-4 w-4 text-purple-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalHotels}</div>
+          <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+            <div className="text-lg md:text-2xl font-bold">{stats.totalHotels}</div>
             <p className="text-xs text-gray-600">
-              {stats.pendingBookings} pending bookings
+              {stats.pendingBookings} pending
             </p>
           </CardContent>
         </Card>
 
         {/* Average Rating */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Rating</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 py-3 md:px-6 md:py-4">
+            <CardTitle className="text-xs md:text-sm font-medium">Avg Rating</CardTitle>
             <Star className="h-4 w-4 text-yellow-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold flex items-center gap-1">
+          <CardContent className="px-4 pb-3 md:px-6 md:pb-4">
+            <div className="text-lg md:text-2xl font-bold flex items-center gap-1">
               {stats.averageRating.toFixed(1)}
-              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+              <Star className="h-4 w-4 md:h-5 md:w-5 fill-yellow-400 text-yellow-400" />
             </div>
             <p className="text-xs text-gray-600">
-              {stats.totalRatings} total reviews
+              {stats.totalRatings} reviews
             </p>
           </CardContent>
         </Card>
@@ -485,18 +485,18 @@ function Dashboard() {
 
       {/* Tabs Section */}
       <Tabs defaultValue="recent-bookings" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="recent-bookings">Recent Bookings</TabsTrigger>
-          <TabsTrigger value="recent-users">New Users</TabsTrigger>
-          <TabsTrigger value="recent-reviews">Latest Reviews</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsTrigger value="recent-bookings" className="text-xs md:text-sm px-2 py-2">Recent Bookings</TabsTrigger>
+          <TabsTrigger value="recent-users" className="text-xs md:text-sm px-2 py-2">New Users</TabsTrigger>
+          <TabsTrigger value="recent-reviews" className="text-xs md:text-sm px-2 py-2">Latest Reviews</TabsTrigger>
         </TabsList>
 
         <TabsContent value="recent-bookings" className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                {user?.isAdmin ? "Recent Bookings (All Users)" : "Your Recent Bookings"}
+            <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <CardTitle className="text-base md:text-lg font-semibold flex items-center gap-2">
+                <Calendar className="h-4 w-4 md:h-5 md:w-5" />
+                <span className="text-sm md:text-base">{user?.isAdmin ? "Recent Bookings (All Users)" : "Your Recent Bookings"}</span>
               </CardTitle>
               <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/bookings")}>
                 View All
@@ -506,25 +506,25 @@ function Dashboard() {
               {recentActivity.bookings.length > 0 ? (
                 <div className="space-y-3">
                   {recentActivity.bookings.map((booking) => (
-                    <div key={booking._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-full">
-                          <Building2 className="h-4 w-4 text-blue-600" />
+                    <div key={booking._id} className="flex flex-col md:flex-row md:items-center md:justify-between p-3 bg-gray-50 rounded-lg gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="p-2 bg-blue-100 rounded-full shrink-0">
+                          <Building2 className="h-3.5 w-3.5 md:h-4 md:w-4 text-blue-600" />
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{booking.guestName}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <p className="font-medium text-sm md:text-base truncate">{booking.guestName}</p>
                             {user?.isAdmin && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs shrink-0">
                                 ID: {booking.user?._id?.slice(-4) || 'N/A'}
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600">{booking.hotel?.name}</p>
+                          <p className="text-xs md:text-sm text-gray-600 truncate">{booking.hotel?.name}</p>
                           {user?.isAdmin && (
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                              <span>📧 {booking.guestEmail}</span>
-                              <span>📱 {booking.guestPhone}</span>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mt-1">
+                              <span className="truncate">📧 {booking.guestEmail}</span>
+                              <span className="shrink-0">📱 {booking.guestPhone}</span>
                             </div>
                           )}
                           <p className="text-xs text-gray-500">
@@ -532,22 +532,24 @@ function Dashboard() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium">{formatCurrency(booking.finalAmount)}</p>
-                        <Badge variant={
-                          booking.paymentStatus === "Paid" ? "default" :
-                          booking.paymentStatus === "Pending" ? "secondary" : "destructive"
-                        } className="mb-1">
-                          {booking.paymentStatus}
-                        </Badge>
-                        <div className="text-xs text-gray-500">
-                          {booking.bookingStatus}
-                        </div>
-                        {user?.isAdmin && (
-                          <div className="text-xs text-gray-400 mt-1">
-                            {formatDate(booking.createdAt)}
+                      <div className="flex md:flex-col items-center md:items-end gap-2 md:gap-0 md:text-right shrink-0">
+                        <p className="font-medium text-sm md:text-base whitespace-nowrap">{formatCurrency(booking.finalAmount)}</p>
+                        <div className="flex flex-col items-end gap-1">
+                          <Badge variant={
+                            booking.paymentStatus === "Paid" ? "default" :
+                            booking.paymentStatus === "Pending" ? "secondary" : "destructive"
+                          } className="text-xs">
+                            {booking.paymentStatus}
+                          </Badge>
+                          <div className="text-xs text-gray-500">
+                            {booking.bookingStatus}
                           </div>
-                        )}
+                          {user?.isAdmin && (
+                            <div className="text-xs text-gray-400">
+                              {formatDate(booking.createdAt)}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -563,9 +565,9 @@ function Dashboard() {
 
         <TabsContent value="recent-users" className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Users className="h-5 w-5" />
+            <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <CardTitle className="text-base md:text-lg font-semibold flex items-center gap-2">
+                <Users className="h-4 w-4 md:h-5 md:w-5" />
                 New Users
               </CardTitle>
               <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/user")}>
@@ -576,17 +578,17 @@ function Dashboard() {
               {recentActivity.users.length > 0 ? (
                 <div className="space-y-3">
                   {recentActivity.users.map((user) => (
-                    <div key={user._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 rounded-full">
-                          <Users className="h-4 w-4 text-green-600" />
+                    <div key={user._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg gap-2">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="p-2 bg-green-100 rounded-full shrink-0">
+                          <Users className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-600" />
                         </div>
-                        <div>
-                          <p className="font-medium">{user.firstName} {user.lastName}</p>
-                          <p className="text-sm text-gray-600">{user.email}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm md:text-base truncate">{user.firstName} {user.lastName}</p>
+                          <p className="text-xs md:text-sm text-gray-600 truncate">{user.email}</p>
                         </div>
                       </div>
-                      <Badge variant={user.isAdmin ? "default" : "secondary"}>
+                      <Badge variant={user.isAdmin ? "default" : "secondary"} className="text-xs shrink-0">
                         {user.isAdmin ? "Admin" : "User"}
                       </Badge>
                     </div>
@@ -601,9 +603,9 @@ function Dashboard() {
 
         <TabsContent value="recent-reviews" className="space-y-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Star className="h-5 w-5" />
+            <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <CardTitle className="text-base md:text-lg font-semibold flex items-center gap-2">
+                <Star className="h-4 w-4 md:h-5 md:w-5" />
                 Latest Reviews
               </CardTitle>
               <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/rating")}>
@@ -615,10 +617,10 @@ function Dashboard() {
                 <div className="space-y-3">
                   {recentActivity.ratings.map((rating) => (
                     <div key={rating._id} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{rating.user?.firstName} {rating.user?.lastName}</p>
-                          <div className="flex items-center gap-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-medium text-sm md:text-base">{rating.user?.firstName} {rating.user?.lastName}</p>
+                          <div className="flex items-center gap-0.5">
                             {[...Array(5)].map((_, i) => (
                               <Star 
                                 key={i} 
@@ -629,9 +631,9 @@ function Dashboard() {
                             ))}
                           </div>
                         </div>
-                        <Badge variant="outline">{rating.ratingType}</Badge>
+                        <Badge variant="outline" className="text-xs self-start sm:self-center">{rating.ratingType}</Badge>
                       </div>
-                      <p className="text-sm text-gray-600">{rating.title}</p>
+                      <p className="text-xs md:text-sm text-gray-600 line-clamp-2">{rating.title}</p>
                       <p className="text-xs text-gray-500 mt-1">{formatDate(rating.createdAt)}</p>
                     </div>
                   ))}
@@ -647,42 +649,42 @@ function Dashboard() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Activity className="h-5 w-5" />
+          <CardTitle className="text-base md:text-lg font-semibold flex items-center gap-2">
+            <Activity className="h-4 w-4 md:h-5 md:w-5" />
             Quick Actions
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <Button variant="outline" className="gap-2 h-auto p-4" onClick={() => navigate("/dashboard/hotel")}>
-              <Building2 className="h-5 w-5" />
-              <div>
-                <p className="font-medium">Manage Hotels</p>
-                <p className="text-xs text-gray-600">Add or edit hotels</p>
+          <div className="grid gap-2 grid-cols-2 md:gap-3 lg:grid-cols-4">
+            <Button variant="outline" className="gap-2 h-auto p-3 md:p-4 flex-col md:flex-row justify-start" onClick={() => navigate("/dashboard/hotel")}>
+              <Building2 className="h-4 w-4 md:h-5 md:w-5" />
+              <div className="text-left">
+                <p className="font-medium text-xs md:text-sm">Manage Hotels</p>
+                <p className="text-xs text-gray-600 hidden md:block">Add or edit hotels</p>
               </div>
             </Button>
 
-            <Button variant="outline" className="gap-2 h-auto p-4" onClick={() => navigate("/dashboard/bookings")}>
-              <Calendar className="h-5 w-5" />
-              <div>
-                <p className="font-medium">View Bookings</p>
-                <p className="text-xs text-gray-600">Manage reservations</p>
+            <Button variant="outline" className="gap-2 h-auto p-3 md:p-4 flex-col md:flex-row justify-start" onClick={() => navigate("/dashboard/bookings")}>
+              <Calendar className="h-4 w-4 md:h-5 md:w-5" />
+              <div className="text-left">
+                <p className="font-medium text-xs md:text-sm">View Bookings</p>
+                <p className="text-xs text-gray-600 hidden md:block">Manage reservations</p>
               </div>
             </Button>
 
-            <Button variant="outline" className="gap-2 h-auto p-4" onClick={() => navigate("/dashboard/rating")}>
-              <Star className="h-5 w-5" />
-              <div>
-                <p className="font-medium">Manage Reviews</p>
-                <p className="text-xs text-gray-600">Respond to feedback</p>
+            <Button variant="outline" className="gap-2 h-auto p-3 md:p-4 flex-col md:flex-row justify-start" onClick={() => navigate("/dashboard/rating")}>
+              <Star className="h-4 w-4 md:h-5 md:w-5" />
+              <div className="text-left">
+                <p className="font-medium text-xs md:text-sm">Manage Reviews</p>
+                <p className="text-xs text-gray-600 hidden md:block">Respond to feedback</p>
               </div>
             </Button>
 
-            <Button variant="outline" className="gap-2 h-auto p-4" onClick={() => navigate("/dashboard/package")}>
-              <Package className="h-5 w-5" />
-              <div>
-                <p className="font-medium">Tour Packages</p>
-                <p className="text-xs text-gray-600">Create packages</p>
+            <Button variant="outline" className="gap-2 h-auto p-3 md:p-4 flex-col md:flex-row justify-start" onClick={() => navigate("/dashboard/package")}>
+              <Package className="h-4 w-4 md:h-5 md:w-5" />
+              <div className="text-left">
+                <p className="font-medium text-xs md:text-sm">Tour Packages</p>
+                <p className="text-xs text-gray-600 hidden md:block">Create packages</p>
               </div>
             </Button>
           </div>

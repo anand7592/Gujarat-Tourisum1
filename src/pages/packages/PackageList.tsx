@@ -133,71 +133,72 @@ const PackageList = ({ packages, onEdit, onDelete, isAdmin }: PackageListProps) 
           
           return (
           <Card key={pkg._id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{pkg.name}</CardTitle>
-                  <div className="flex gap-2 mt-2">
-                    <Badge className={getCategoryColor(pkg.category)}>
+            <CardHeader className="pb-3 px-4 py-4">
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-base md:text-lg truncate">{pkg.name}</CardTitle>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    <Badge className={`${getCategoryColor(pkg.category)} text-xs`}>
                       {pkg.category}
                     </Badge>
-                    <Badge className={getDifficultyColor(pkg.difficulty)}>
+                    <Badge className={`${getDifficultyColor(pkg.difficulty)} text-xs`}>
                       {pkg.difficulty}
                     </Badge>
                   </div>
                 </div>
-                <Badge variant={pkg.isActive ? "default" : "secondary"}>
+                <Badge variant={pkg.isActive ? "default" : "secondary"} className="text-xs shrink-0">
                   {pkg.isActive ? "Active" : "Inactive"}
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="pt-0 space-y-3">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4 text-gray-500" />
+            <CardContent className="pt-0 space-y-3 px-4 pb-4">
+              <div className="grid grid-cols-2 gap-3 text-xs md:text-sm">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 shrink-0" />
                   <span>{pkg.duration} days</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-gray-500" />
-                  <span>
+                <div className="flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 shrink-0" />
+                  <span className="truncate">
                     {pkg.groupSize?.min || 1}-{pkg.groupSize?.max || 10} people
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <IndianRupee className="h-4 w-4 text-gray-500" />
-                  <span className="font-semibold">
+                <div className="flex items-center gap-1.5 col-span-2">
+                  <IndianRupee className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 shrink-0" />
+                  <span className="font-semibold truncate">
                     {formatCurrency(pkg.discountedPrice || pkg.price)}
                     {pkg.discountedPrice && (
-                      <span className="text-gray-400 line-through ml-1">
+                      <span className="text-gray-400 line-through ml-1.5 text-xs">
                         {formatCurrency(pkg.price)}
                       </span>
                     )}
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4 text-gray-500" />
-                  <span>{formatDate(pkg.startDate)}</span>
+                <div className="flex items-center gap-1.5 col-span-2">
+                  <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 shrink-0" />
+                  <span className="truncate">{formatDate(pkg.startDate)}</span>
                 </div>
               </div>
               
-              <div className="flex items-center gap-1 text-sm">
-                <Activity className="h-4 w-4 text-gray-500" />
+              <div className="flex items-center gap-1.5 text-xs md:text-sm">
+                <Activity className="h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 shrink-0" />
                 <span>{pkg.availableSlots - pkg.bookedSlots} slots available</span>
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-wrap gap-2 pt-2">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1"
+                      className="flex-1 min-w-20"
                       onClick={() => setSelectedPackage(pkg)}
                     >
-                      <Eye className="h-3 w-3 mr-1" /> View
+                      <Eye className="h-3 w-3 md:mr-1" /> 
+                      <span className="hidden md:inline">View</span>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogContent className="max-w-[95vw] md:max-w-4xl max-h-[90vh] md:max-h-[80vh] overflow-y-auto">
                     <PackageDetailsModal package={selectedPackage} />
                   </DialogContent>
                 </Dialog>
@@ -206,19 +207,22 @@ const PackageList = ({ packages, onEdit, onDelete, isAdmin }: PackageListProps) 
                   <>
                     <Button 
                       variant="outline" 
-                      size="sm" 
+                      size="sm"
+                      className="flex-1 min-w-20"
                       onClick={() => {
                         console.log('🖱️ Edit button clicked for package:', pkg.name);
                         onEdit(pkg);
                       }}
                     >
-                      <Pencil className="h-3 w-3 mr-1" /> Edit
+                      <Pencil className="h-3 w-3 md:mr-1" /> 
+                      <span className="hidden md:inline">Edit</span>
                     </Button>
                     
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="h-3 w-3 mr-1" /> Delete
+                        <Button variant="outline" size="sm" className="flex-1 min-w-20">
+                          <Trash2 className="h-3 w-3 md:mr-1" /> 
+                          <span className="hidden md:inline">Delete</span>
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -430,9 +434,9 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
         </DialogDescription>
       </DialogHeader>
 
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Basic Info */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           <div className="text-center">
             <Clock className="h-6 w-6 mx-auto text-blue-600 mb-1" />
             <div className="font-semibold">{pkg.duration} Days</div>
@@ -454,11 +458,11 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
         {/* Highlights */}
         {pkg.highlights && pkg.highlights.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2 flex items-center gap-2">
+            <h4 className="text-sm md:text-base font-semibold mb-2 flex items-center gap-2">
               <Star className="h-4 w-4" />
               Highlights
             </h4>
-            <ul className="list-disc list-inside space-y-1 text-sm">
+            <ul className="list-disc list-inside space-y-1 text-xs md:text-sm">
               {pkg.highlights.map((highlight, index) => (
                 <li key={index}>{highlight}</li>
               ))}
@@ -469,12 +473,12 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
         {/* Itinerary */}
         {pkg.itinerary && pkg.itinerary.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2">📋 Itinerary</h4>
-            <div className="space-y-3">
+            <h4 className="text-sm md:text-base font-semibold mb-2">📋 Itinerary</h4>
+            <div className="space-y-2 md:space-y-3">
               {pkg.itinerary.map((day, index) => (
-                <div key={index} className="border rounded-lg p-3">
-                  <div className="font-medium text-blue-600">Day {day.day}: {day.title}</div>
-                  <p className="text-sm text-gray-600 mt-1">{day.description}</p>
+                <div key={index} className="border rounded-lg p-2.5 md:p-3">
+                  <div className="text-sm md:text-base font-medium text-blue-600">Day {day.day}: {day.title}</div>
+                  <p className="text-xs md:text-sm text-gray-600 mt-1">{day.description}</p>
                   {day.activities && day.activities.length > 0 && (
                     <div className="mt-2 text-xs text-gray-500">
                       Activities: {day.activities.join(", ")}
@@ -489,11 +493,11 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
         {/* Places */}
         {pkg.places && pkg.places.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2 flex items-center gap-2">
+            <h4 className="text-sm md:text-base font-semibold mb-2 flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               Places Covered
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-1.5 md:grid-cols-3 md:gap-2">
               {pkg.places.map((place, index) => (
                 <Badge key={index} variant="outline" className="justify-center">
                   {place.name}
@@ -506,11 +510,11 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
         {/* Hotels */}
         {pkg.hotels && pkg.hotels.length > 0 && (
           <div>
-            <h4 className="font-semibold mb-2 flex items-center gap-2">
+            <h4 className="text-sm md:text-base font-semibold mb-2 flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               Recommended Hotels
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2 md:gap-2">
               {pkg.hotels.map((hotel, index) => (
                 <div key={index} className="text-sm border rounded p-2">
                   <div className="font-medium">{hotel.name}</div>
@@ -522,11 +526,11 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
         )}
 
         {/* Included/Excluded */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
           {pkg.included && pkg.included.length > 0 && (
             <div>
-              <h4 className="font-semibold mb-2 text-green-600">✅ What's Included</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm">
+              <h4 className="text-sm md:text-base font-semibold mb-2 text-green-600">✅ What's Included</h4>
+              <ul className="list-disc list-inside space-y-1 text-xs md:text-sm">
                 {pkg.included.map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
@@ -536,8 +540,8 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
 
           {pkg.excluded && pkg.excluded.length > 0 && (
             <div>
-              <h4 className="font-semibold mb-2 text-red-600">❌ What's Excluded</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm">
+              <h4 className="text-sm md:text-base font-semibold mb-2 text-red-600">❌ What's Excluded</h4>
+              <ul className="list-disc list-inside space-y-1 text-xs md:text-sm">
                 {pkg.excluded.map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
@@ -548,17 +552,17 @@ const PackageDetailsModal = ({ package: pkg }: { package: Package | null }) => {
 
         {/* Policies */}
         {(pkg.cancellationPolicy || pkg.termsAndConditions) && (
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {pkg.cancellationPolicy && (
               <div>
-                <h4 className="font-semibold mb-1">📜 Cancellation Policy</h4>
-                <p className="text-sm text-gray-600">{pkg.cancellationPolicy}</p>
+                <h4 className="text-sm md:text-base font-semibold mb-1">📜 Cancellation Policy</h4>
+                <p className="text-xs md:text-sm text-gray-600">{pkg.cancellationPolicy}</p>
               </div>
             )}
             {pkg.termsAndConditions && (
               <div>
-                <h4 className="font-semibold mb-1">📋 Terms & Conditions</h4>
-                <p className="text-sm text-gray-600">{pkg.termsAndConditions}</p>
+                <h4 className="text-sm md:text-base font-semibold mb-1">📋 Terms & Conditions</h4>
+                <p className="text-xs md:text-sm text-gray-600">{pkg.termsAndConditions}</p>
               </div>
             )}
           </div>
