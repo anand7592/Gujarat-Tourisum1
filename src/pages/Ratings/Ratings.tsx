@@ -39,6 +39,7 @@ const Ratings = () => {
   const [isRespondOpen, setIsRespondOpen] = useState(false);
   const [selectedRating, setSelectedRating] = useState<Rating | null>(null);
   const [responseText, setResponseText] = useState("");
+  const [responseLoading, setResponseLoading] = useState(false);
 
   // Create Review State
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -91,6 +92,7 @@ const Ratings = () => {
   const handleSubmitResponse = async () => {
     if (!selectedRating) return;
     try {
+      setResponseLoading(true);
       const { data } = await api.put(`/ratings/${selectedRating._id}/respond`, {
         response: responseText,
       });
@@ -98,6 +100,8 @@ const Ratings = () => {
       setIsRespondOpen(false);
     } catch (error) {
       alert("Failed to send response");
+    } finally {
+      setResponseLoading(false);
     }
   };
 
@@ -233,7 +237,18 @@ const Ratings = () => {
               </div>
             </div>
           )}
-          <DialogFooter><Button onClick={handleSubmitResponse} className="bg-blue-600 hover:bg-blue-700">Send Response</Button></DialogFooter>
+          <DialogFooter>
+            <Button onClick={handleSubmitResponse} className="bg-blue-600 hover:bg-blue-700" disabled={responseLoading}>
+              {responseLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Response"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

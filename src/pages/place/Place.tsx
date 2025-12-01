@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 const Places = () => {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ const Places = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editData, setEditData] = useState<Partial<Place> | null>(null);
   const [editImage, setEditImage] = useState<File | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     fetchPlaces();
@@ -68,6 +70,7 @@ const Places = () => {
     if (!editData || !editData._id) return;
 
     try {
+      setEditLoading(true);
       const formData = new FormData();
       if (editData.name) formData.append("name", editData.name);
       if (editData.location) formData.append("location", editData.location);
@@ -82,6 +85,8 @@ const Places = () => {
       setIsEditOpen(false);
     } catch (error: any) {
       alert("Failed to update place");
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -157,7 +162,16 @@ const Places = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={submitEdit}>Save Changes</Button>
+            <Button onClick={submitEdit} disabled={editLoading}>
+              {editLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

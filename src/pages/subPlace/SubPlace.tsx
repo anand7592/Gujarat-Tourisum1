@@ -6,6 +6,7 @@ import SubPlaceForm from "./SubPlaceForm";
 import SubPlaceList from "./SubPlaceList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +22,7 @@ const SubPlaces = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [editData, setEditData] = useState<any>(null); 
   const [editImage, setEditImage] = useState<File | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -74,6 +76,7 @@ const SubPlaces = () => {
   const submitEdit = async () => {
     if (!editData) return;
     try {
+      setEditLoading(true);
       const payload = new FormData();
       payload.append("name", editData.name);
       payload.append("description", editData.description);
@@ -94,6 +97,8 @@ const SubPlaces = () => {
       setIsEditOpen(false);
     } catch (error) {
       alert("Update failed");
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -161,7 +166,18 @@ const SubPlaces = () => {
 
           </div>
           
-          <DialogFooter><Button onClick={submitEdit}>Save Changes</Button></DialogFooter>
+          <DialogFooter>
+            <Button onClick={submitEdit} disabled={editLoading}>
+              {editLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

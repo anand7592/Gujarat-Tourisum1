@@ -7,6 +7,7 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -29,6 +30,7 @@ const formSchema = z.object({
 export default function Register() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,6 +46,8 @@ export default function Register() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setError("");
+      setIsLoading(true);
       // 1. Send data to backend
       await api.post("/auth/register", values);
       
@@ -56,6 +60,8 @@ export default function Register() {
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -157,8 +163,15 @@ export default function Register() {
                 )}
               />
 
-              <Button type="submit" className="w-full mt-4">
-                Register
+              <Button type="submit" className="w-full mt-4" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Register"
+                )}
               </Button>
             </form>
           </Form>
