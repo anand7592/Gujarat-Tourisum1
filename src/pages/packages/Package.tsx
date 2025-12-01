@@ -9,11 +9,8 @@ import {
   Package2, 
   Plus, 
   Search, 
-  Filter, 
   SortAsc, 
   SortDesc,
-  MapPin,
-  Calendar,
   Users,
   IndianRupee,
   Activity

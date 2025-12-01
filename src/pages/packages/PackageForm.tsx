@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "@/context/AuthContext";
 import type { Package, PackageFormData, Place, Hotel } from "@/types";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -9,8 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateInputDD_MM_YYYY } from "@/components/ui/date-input";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, X, MapPin, Users, Calendar, IndianRupee, Star, Clock } from "lucide-react";
+import { Loader2, Plus, X, MapPin, Users, IndianRupee, Clock } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -27,7 +25,6 @@ interface PackageFormProps {
 }
 
 const PackageForm = ({ onSuccess, onSubmit, initialData, isSubmitting }: PackageFormProps) => {
-  const { user } = useAuth();
   const [places, setPlaces] = useState<Place[]>([]);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
