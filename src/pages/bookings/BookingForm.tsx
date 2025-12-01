@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Hotel, BookingFormData } from "@/types";
 import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,7 @@ interface BookingFormProps {
 const BookingForm = ({ hotelId, onSuccess }: BookingFormProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get current logged-in user
   const selectedHotelId = hotelId || id;
   
   const [hotel, setHotel] = useState<Hotel | null>(null);
@@ -45,9 +47,9 @@ const BookingForm = ({ hotelId, onSuccess }: BookingFormProps) => {
     checkOutDate: "",
     roomType: "",
     numberOfRooms: 1,
-    guestName: "",
-    guestEmail: "",
-    guestPhone: "",
+    guestName: user ? `${user.firstName} ${user.lastName}` : "", // Pre-fill with user's full name
+    guestEmail: user?.email || "", // Pre-fill with user's email
+    guestPhone: user?.contactNo || "", // Pre-fill with user's contact number
     numberOfGuests: 1,
     specialRequests: "",
     pricePerNight: 0,
@@ -113,6 +115,18 @@ const BookingForm = ({ hotelId, onSuccess }: BookingFormProps) => {
       }
     }
   }, [formData.checkInDate, formData.checkOutDate, formData.pricePerNight, formData.numberOfRooms]);
+
+  // Effect to pre-fill user information when user data becomes available
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        guestName: prev.guestName || `${user.firstName} ${user.lastName}`,
+        guestEmail: prev.guestEmail || user.email,
+        guestPhone: prev.guestPhone || user.contactNo || "",
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchHotels();
@@ -394,6 +408,14 @@ const BookingForm = ({ hotelId, onSuccess }: BookingFormProps) => {
                     <Users size={18} />
                     Guest Information
                   </h3>
+                  {user && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-sm text-blue-800">
+                        <strong>Pre-filled from your profile:</strong> Your details have been automatically filled below. 
+                        You can edit them if needed for this booking.
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="space-y-2">
                     <Label>Guest Name *</Label>

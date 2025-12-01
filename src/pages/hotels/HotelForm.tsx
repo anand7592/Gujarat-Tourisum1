@@ -100,12 +100,35 @@ const HotelForm = ({
 
   const handleRoomChange = (index: number, field: string, value: any) => {
     const updated = [...roomTypes];
+    
+    // Validate price cannot be zero or negative
+    if (field === 'pricePerNight') {
+      const price = Number(value);
+      if (price < 1) {
+        alert('Room price must be at least ₹1 per night');
+        return;
+      }
+    }
+    
+    // Validate max guests
+    if (field === 'maxGuests') {
+      const guests = Number(value);
+      if (guests < 1) {
+        alert('Room must accommodate at least 1 guest');
+        return;
+      }
+      if (guests > 10) {
+        alert('Maximum 10 guests allowed per room');
+        return;
+      }
+    }
+    
     (updated[index] as any)[field] = value;
     setRoomTypes(updated);
   };
 
   const addRoom = () =>
-    setRoomTypes([...roomTypes, { name: "", pricePerNight: 0, maxGuests: 2 }]);
+    setRoomTypes([...roomTypes, { name: "", pricePerNight: 1000, maxGuests: 2 }]);
   const removeRoom = (index: number) => {
     if (roomTypes.length > 1)
       setRoomTypes(roomTypes.filter((_, i) => i !== index));
@@ -113,6 +136,8 @@ const HotelForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate basic fields
     if (
       !formData.name ||
       !formData.place ||
@@ -120,6 +145,29 @@ const HotelForm = ({
       !formData.description
     ) {
       return alert("Please fill in required fields");
+    }
+    
+    // Validate starting price
+    if (!formData.pricePerNight || Number(formData.pricePerNight) < 1) {
+      return alert("Please enter a valid starting price (minimum ₹1)");
+    }
+    
+    // Validate room types
+    if (roomTypes.length === 0) {
+      return alert("Please add at least one room type");
+    }
+    
+    for (let i = 0; i < roomTypes.length; i++) {
+      const room = roomTypes[i];
+      if (!room.name.trim()) {
+        return alert(`Please enter a name for room type ${i + 1}`);
+      }
+      if (room.pricePerNight < 1) {
+        return alert(`Room type "${room.name}" must have a price of at least ₹1`);
+      }
+      if (room.maxGuests < 1) {
+        return alert(`Room type "${room.name}" must accommodate at least 1 guest`);
+      }
     }
 
     const payload = new FormData();
@@ -266,14 +314,22 @@ const HotelForm = ({
               />
             </div>
             <div className="space-y-2">
-              <Label>Base Price (₹) *</Label>
+              <Label className="flex items-center gap-1">
+                💰 Starting Price (₹) *
+              </Label>
               <Input
                 type="number"
+                min="1"
                 value={formData.pricePerNight}
                 onChange={(e) =>
                   setFormData({ ...formData, pricePerNight: e.target.value })
                 }
+                placeholder="1500"
+                className="border-gray-300 focus:border-green-500"
               />
+              <p className="text-xs text-gray-600">
+                Lowest room price for search results & hotel listing
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
@@ -318,40 +374,67 @@ const HotelForm = ({
             )}
           </div>
 
+          {/* PRICING EXPLANATION */}
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 space-y-2">
+            <h4 className="font-semibold text-blue-800 flex items-center gap-2">
+              💡 How Hotel Pricing Works
+            </h4>
+            <div className="text-sm text-blue-700">
+              <p><strong>Starting Price:</strong> The lowest room rate shown in search results (₹{formData.pricePerNight || 'XXX'} per night)</p>
+              <p><strong>Room Type Prices:</strong> Specific rates for each room category you offer</p>
+              <p className="text-xs mt-1">💡 <em>Tip: Set your starting price equal to your cheapest room type</em></p>
+            </div>
+          </div>
+
           {/* ROOM TYPES */}
           <div className="bg-gray-50 p-4 rounded-lg border space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium text-sm text-gray-700">
-                Room Configuration
-              </h4>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={addRoom}
-              >
-                <Plus size={14} className="mr-1" /> Add Room
-              </Button>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <h4 className="font-semibold text-lg text-gray-800">
+                  🏨 Room Types & Detailed Pricing
+                </h4>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={addRoom}
+                >
+                  <Plus size={14} className="mr-1" /> Add Room Type
+                </Button>
+              </div>
+              <p className="text-sm text-gray-600">
+                Define different types of rooms available in your hotel with their specific pricing and capacity.
+                <br />
+                <span className="text-blue-600 font-medium">Examples:</span> Standard Room, Deluxe Room, Suite, Family Room, etc.
+              </p>
             </div>
             {roomTypes.map((room, idx) => (
               <div
                 key={idx}
-                className="flex flex-col sm:flex-row gap-4 sm:items-end bg-white p-3 rounded border"
+                className="flex flex-col sm:flex-row gap-4 sm:items-end bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors"
               >
-                <div className="flex-1 space-y-1">
-                  <Label className="text-xs font-medium">Room Name</Label>
+                <div className="flex-1 space-y-2">
+                  <Label className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+                    🏷️ Room Type Name *
+                  </Label>
                   <Input
                     value={room.name}
                     onChange={(e) =>
                       handleRoomChange(idx, "name", e.target.value)
                     }
-                    placeholder="e.g. Deluxe Room"
+                    placeholder="e.g. Standard Room, Deluxe Suite, Family Room"
+                    className="border-gray-300 focus:border-blue-500"
+                    required
                   />
+                  <p className="text-xs text-gray-500">Give a clear name that guests will understand</p>
                 </div>
-                <div className="w-full sm:w-24 space-y-1">
-                  <Label className="text-xs font-medium">Price (₹)</Label>
+                <div className="w-full sm:w-32 space-y-2">
+                  <Label className="text-sm font-semibold text-green-700 flex items-center gap-1">
+                    💰 Price per Night (₹) *
+                  </Label>
                   <Input
                     type="number"
+                    min="1"
                     value={room.pricePerNight}
                     onChange={(e) =>
                       handleRoomChange(
@@ -361,18 +444,28 @@ const HotelForm = ({
                       )
                     }
                     placeholder="2000"
+                    className="border-gray-300 focus:border-green-500"
+                    required
                   />
+                  <p className="text-xs text-gray-500">Minimum ₹1 required</p>
                 </div>
-                <div className="w-full sm:w-20 space-y-1">
-                  <Label className="text-xs font-medium">Max Guests</Label>
+                <div className="w-full sm:w-28 space-y-2">
+                  <Label className="text-sm font-semibold text-purple-700 flex items-center gap-1">
+                    👥 Max Guests *
+                  </Label>
                   <Input
                     type="number"
+                    min="1"
+                    max="10"
                     value={room.maxGuests}
                     onChange={(e) =>
                       handleRoomChange(idx, "maxGuests", Number(e.target.value))
                     }
                     placeholder="2"
+                    className="border-gray-300 focus:border-purple-500"
+                    required
                   />
+                  <p className="text-xs text-gray-500">1-10 people</p>
                 </div>
                 {roomTypes.length > 1 && (
                   <div className="flex justify-end sm:justify-center">

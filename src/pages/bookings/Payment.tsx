@@ -167,35 +167,7 @@ const Payment = () => {
       const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
       if (!razorpayKey || razorpayKey === 'rzp_test_your_key_id_here' || razorpayKey === 'rzp_test_your_actual_key_here') {
         // Development mode: Show option to simulate payment or configure Razorpay
-        const useTestMode = confirm(
-          'Razorpay key not configured.\n\n' +
-          'Click OK to simulate payment success (development mode)\n' +
-          'Click Cancel to configure Razorpay properly'
-        );
-        
-        if (useTestMode) {
-          // Simulate payment success
-          setTimeout(async () => {
-            try {
-              // Simulate payment verification with mock data
-              await verifyPayment({
-                razorpay_payment_id: 'pay_test_' + Date.now(),
-                razorpay_order_id: booking.razorpayOrderId || 'order_test_' + Date.now(),
-                razorpay_signature: 'test_signature_' + Date.now()
-              });
-              
-              alert('Payment simulated successfully! (Development Mode)');
-              navigate('/dashboard/bookings');
-            } catch (error: unknown) {
-              const errorMessage = error instanceof Error ? error.message : "Payment simulation failed";
-              setError(errorMessage);
-            }
-            setProcessing(false);
-          }, 2000);
-          return;
-        } else {
-          throw new Error('Please configure Razorpay: Get your key from https://dashboard.razorpay.com/app/keys and add it to .env as VITE_RAZORPAY_KEY_ID');
-        }
+        throw new Error('Please configure Razorpay: Get your key from https://dashboard.razorpay.com/app/keys and add it to .env as VITE_RAZORPAY_KEY_ID');
       }
       
       // Try to create Razorpay order

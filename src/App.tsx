@@ -11,6 +11,7 @@ import SubPlaces from './pages/subPlace/SubPlace';
 import Hotels from './pages/hotels/Hotel';
 import Bookings from './pages/bookings/Bookings';
 import Payment from './pages/bookings/Payment';
+import Package from './pages/packages/Package';
 import './lib/debugAuth'; // Import debug utilities
 import './lib/testRazorpay'; // Import Razorpay test utilities
 
@@ -33,7 +34,7 @@ function App() {
           <Route path="/dashboard/user" element={<Users />} />
           <Route path="/dashboard/place" element={<Place />} />
           <Route path="/dashboard/subplace" element={<SubPlaces />} />
-          <Route path="/dashboard/package" element={<Dashboard />} />
+          <Route path="/dashboard/package" element={<Package />} />
           <Route path="/dashboard/hotel" element={<Hotels />} />
           <Route path="/dashboard/rating" element={<Ratings />} />
           <Route path="/dashboard/bookings" element={<Bookings />} />

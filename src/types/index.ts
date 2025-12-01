@@ -135,3 +135,88 @@ export interface BookingFormData {
   pricePerNight: number;
   paymentMethod: string;
 }
+
+export interface Package {
+  _id: string;
+  name: string;
+  description: string;
+  duration: number; // in days
+  price: number;
+  discountedPrice?: number;
+  category: "Adventure" | "Cultural" | "Religious" | "Wildlife" | "Beach" | "Hill Station" | "Heritage" | "Family" | "Romantic" | "Budget";
+  difficulty: "Easy" | "Moderate" | "Hard";
+  groupSize: {
+    min: number;
+    max: number;
+  };
+  included: string[]; // What's included in the package
+  excluded: string[]; // What's not included
+  itinerary: PackageItinerary[];
+  images: string[];
+  places: Place[]; // Places covered in the package
+  hotels: Hotel[]; // Recommended/included hotels
+  startDate: string;
+  endDate: string;
+  availableSlots: number;
+  bookedSlots: number;
+  isActive: boolean;
+  highlights: string[]; // Key attractions/features
+  meetingPoint: string;
+  cancellationPolicy: string;
+  termsAndConditions: string;
+  createdBy: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PackageItinerary {
+  day: number;
+  title: string;
+  description: string;
+  activities: string[];
+  meals: ("Breakfast" | "Lunch" | "Dinner")[];
+  accommodation?: string;
+  places: string[]; // Place names to visit on this day
+}
+
+export interface PackageBooking {
+  _id: string;
+  user: User;
+  package: Package;
+  numberOfPeople: number;
+  bookingDate: string;
+  totalAmount: number;
+  paymentStatus: "Pending" | "Paid" | "Failed" | "Refunded";
+  bookingStatus: "Confirmed" | "Pending" | "Cancelled" | "Completed";
+  specialRequests?: string;
+  contactDetails: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PackageFormData {
+  name: string;
+  description: string;
+  duration: number;
+  price: number;
+  discountedPrice: string;
+  category: string;
+  difficulty: string;
+  groupSizeMin: number;
+  groupSizeMax: number;
+  included: string;
+  excluded: string;
+  highlights: string;
+  meetingPoint: string;
+  cancellationPolicy: string;
+  termsAndConditions: string;
+  startDate: string;
+  endDate: string;
+  availableSlots: number;
+  places: string[];
+  hotels: string[];
+}
