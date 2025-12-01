@@ -163,7 +163,7 @@ const Payment = () => {
           }, 2000);
           return;
         } else {
-          throw new Error('Please configure Razorpay: Get your key from https://dashboard.razorpay.com/app/keys and add it to .env.local as VITE_RAZORPAY_KEY_ID');
+          throw new Error('Please configure Razorpay: Get your key from https://dashboard.razorpay.com/app/keys and add it to .env as VITE_RAZORPAY_KEY_ID');
         }
       }
       

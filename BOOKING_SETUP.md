@@ -9,14 +9,14 @@
 
 1. **Copy Environment Variables**
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env
    ```
 
 2. **Configure Razorpay**
    - Sign up at [Razorpay Dashboard](https://dashboard.razorpay.com/)
    - Navigate to Settings > API Keys
    - Generate Test/Live API Keys
-   - Update `.env.local` with your keys:
+   - Update `.env` with your keys:
      ```
      REACT_APP_RAZORPAY_KEY_ID=rzp_test_your_actual_key_id
      RAZORPAY_KEY_SECRET=your_actual_secret_key

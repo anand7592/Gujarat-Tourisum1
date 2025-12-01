@@ -13,6 +13,7 @@ import {
   Package,
   Building2,
   Star,
+  Calendar,
   LogOut,
 } from "lucide-react";
 
@@ -131,6 +132,15 @@ function UserAvatarMenu() {
             >
               <Star className="mr-2 h-4 w-4" />
               <span>Manage Rating</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="md:hidden cursor-pointer"
+              // Update: Call handleNavigation with the route path
+              onClick={() => handleNavigation("/dashboard/bookings")}
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              <span>Bookings</span>
             </DropdownMenuItem>
 
             {/* LOGOUT – VISIBLE ON ALL SCREENS */}

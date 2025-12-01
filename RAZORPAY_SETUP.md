@@ -9,7 +9,7 @@
 - Copy your **Test Key ID** (starts with `rzp_test_`)
 
 ### 2. Configure Environment Variable
-Open your `.env.local` file and replace:
+Open your `.env` file and replace:
 
 ```bash
 # Before (placeholder)
