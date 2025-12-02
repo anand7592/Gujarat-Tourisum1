@@ -1,53 +1,62 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import Dashboard from './pages/dashboard/Dashboard';
+import { lazy, Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 import ProtectedRoute from './components/ProtectedRoute';
-import DashboardLayout from './components/layout/DashboardLayout'; // Import Layout
-import Users from './pages/users/Users';
-import Place from './pages/place/Place';
-import Ratings from './pages/Ratings/Ratings';
-import SubPlaces from './pages/subPlace/SubPlace';
-import Hotels from './pages/hotels/Hotel';
-import Bookings from './pages/bookings/Bookings';
-import Payment from './pages/bookings/Payment';
-import Package from './pages/packages/Package';
-import './lib/debugAuth'; // Import debug utilities
-import './lib/testRazorpay'; // Import Razorpay test utilities
+import DashboardLayout from './components/layout/DashboardLayout';
+import './lib/debugAuth';
+import './lib/testRazorpay';
+
+// Lazy load all pages for better code splitting
+const Login = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const Dashboard = lazy(() => import('./pages/dashboard/Dashboard'));
+const Users = lazy(() => import('./pages/users/Users'));
+const Place = lazy(() => import('./pages/place/Place'));
+const Ratings = lazy(() => import('./pages/Ratings/Ratings'));
+const SubPlaces = lazy(() => import('./pages/subPlace/SubPlace'));
+const Hotels = lazy(() => import('./pages/hotels/Hotel'));
+const Bookings = lazy(() => import('./pages/bookings/Bookings'));
+const Payment = lazy(() => import('./pages/bookings/Payment'));
+const Package = lazy(() => import('./pages/packages/Package'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="flex h-screen w-full items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+  </div>
+);
 
 function App() {
   return (
-    <>
- 
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      
-      {/* SECURITY LAYER: ProtectedRoute */}
-      <Route element={<ProtectedRoute />}>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
-        {/* LAYOUT LAYER: DashboardLayout */}
-        <Route element={<DashboardLayout />}>
+        {/* SECURITY LAYER: ProtectedRoute */}
+        <Route element={<ProtectedRoute />}>
           
-          {/* CONTENT LAYER: The actual pages */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/user" element={<Users />} />
-          <Route path="/dashboard/place" element={<Place />} />
-          <Route path="/dashboard/subplace" element={<SubPlaces />} />
-          <Route path="/dashboard/package" element={<Package />} />
-          <Route path="/dashboard/hotel" element={<Hotels />} />
-          <Route path="/dashboard/rating" element={<Ratings />} />
-          <Route path="/dashboard/bookings" element={<Bookings />} />
-          <Route path="/dashboard/booking/:bookingId/payment" element={<Payment />} />
-          {/* You can add more pages here later, e.g.: */}
-          {/* <Route path="/profile" element={<Profile />} /> */}
-          
+          {/* LAYOUT LAYER: DashboardLayout */}
+          <Route element={<DashboardLayout />}>
+            
+            {/* CONTENT LAYER: The actual pages */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/user" element={<Users />} />
+            <Route path="/dashboard/place" element={<Place />} />
+            <Route path="/dashboard/subplace" element={<SubPlaces />} />
+            <Route path="/dashboard/package" element={<Package />} />
+            <Route path="/dashboard/hotel" element={<Hotels />} />
+            <Route path="/dashboard/rating" element={<Ratings />} />
+            <Route path="/dashboard/bookings" element={<Bookings />} />
+            <Route path="/dashboard/booking/:bookingId/payment" element={<Payment />} />
+            
+          </Route>
+
         </Route>
 
-      </Route>
-
-      <Route path="/" element={<Navigate to="/login" replace />} />
-    </Routes></>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 

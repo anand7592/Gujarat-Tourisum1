@@ -23,5 +23,50 @@ export default defineConfig(() => {
         },
       },
     },
+    // Build optimizations for faster loading
+    build: {
+      // Enable minification
+      minify: 'esbuild' as const,
+      // Chunk splitting for better caching
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Vendor chunk for React core
+            'react-vendor': ['react', 'react-dom'],
+            // Router chunk
+            'router': ['react-router-dom'],
+            // UI libraries chunk
+            'ui-vendor': [
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-dropdown-menu',
+              '@radix-ui/react-select',
+              '@radix-ui/react-tabs',
+              '@radix-ui/react-avatar',
+              '@radix-ui/react-alert-dialog',
+            ],
+            // Form handling chunk
+            'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+            // Icons chunk
+            'icons': ['lucide-react'],
+          },
+        },
+      },
+      // Target modern browsers for smaller bundles
+      target: 'es2020',
+      // Enable source maps for production debugging (optional)
+      sourcemap: false,
+      // Reduce chunk size warnings threshold
+      chunkSizeWarningLimit: 1000,
+    },
+    // Optimize dependencies pre-bundling
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'axios',
+        'lucide-react',
+      ],
+    },
   };
 });

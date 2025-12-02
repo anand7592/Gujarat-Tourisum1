@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,40 +15,18 @@ import api from "@/lib/api";
 const Bookings = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("list");
-  
-  // Stats
-  const [stats, setStats] = useState({
-    total: 0,
-    confirmed: 0,
-    pending: 0,
-    cancelled: 0,
-    completed: 0
-  });
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get("/bookings");
       const bookingData = response.data.bookings || [];
       setBookings(bookingData);
-      setFilteredBookings(bookingData);
-      
-      // Calculate stats
-      const newStats = {
-        total: bookingData.length,
-        confirmed: bookingData.filter((b: Booking) => b.bookingStatus === "Confirmed").length,
-        pending: bookingData.filter((b: Booking) => b.bookingStatus === "Pending").length,
-        cancelled: bookingData.filter((b: Booking) => b.bookingStatus === "Cancelled").length,
-        completed: bookingData.filter((b: Booking) => b.bookingStatus === "Completed").length
-      };
-      setStats(newStats);
-      
     } catch (error: unknown) {
       console.error("Failed to fetch bookings:", error);
       
@@ -60,7 +38,6 @@ const Bookings = () => {
           console.warn("Booking endpoints not implemented yet. Using empty state.");
           // Set empty bookings instead of showing error for missing endpoints
           setBookings([]);
-          setFilteredBookings([]);
           return;
         }
         
@@ -73,26 +50,27 @@ const Bookings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [fetchBookings]);
 
-  // Filter bookings based on search and filters
-  useEffect(() => {
-    let filtered = [...bookings];
+  // Memoized filtered bookings for better performance
+  const filteredBookings = useMemo(() => {
+    let filtered = bookings;
 
     // Search filter
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter((booking) => {
         const hotel = typeof booking.hotel === 'object' ? booking.hotel : null;
         return (
-          booking.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          booking.guestEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          booking.guestName.toLowerCase().includes(searchLower) ||
+          booking.guestEmail.toLowerCase().includes(searchLower) ||
           booking.guestPhone.includes(searchTerm) ||
-          booking._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (hotel && hotel.name.toLowerCase().includes(searchTerm.toLowerCase()))
+          booking._id.toLowerCase().includes(searchLower) ||
+          (hotel && hotel.name.toLowerCase().includes(searchLower))
         );
       });
     }
@@ -107,8 +85,17 @@ const Bookings = () => {
       filtered = filtered.filter((booking) => booking.paymentStatus === paymentFilter);
     }
 
-    setFilteredBookings(filtered);
+    return filtered;
   }, [searchTerm, statusFilter, paymentFilter, bookings]);
+
+  // Memoized stats calculation
+  const stats = useMemo(() => ({
+    total: bookings.length,
+    confirmed: bookings.filter((b) => b.bookingStatus === "Confirmed").length,
+    pending: bookings.filter((b) => b.bookingStatus === "Pending").length,
+    cancelled: bookings.filter((b) => b.bookingStatus === "Cancelled").length,
+    completed: bookings.filter((b) => b.bookingStatus === "Completed").length
+  }), [bookings]);
 
   const handleBookingSuccess = () => {
     setActiveTab("list");

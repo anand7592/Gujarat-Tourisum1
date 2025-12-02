@@ -71,85 +71,43 @@ function Dashboard() {
     try {
       setLoading(true);
       
-      // Fetch all data with individual error handling and debugging
-      // console.log("Fetching dashboard data...");
+      // Fetch all data in PARALLEL for better performance
+      const [usersRes, placesRes, subPlacesRes, hotelsRes, bookingsRes, ratingsRes] = await Promise.allSettled([
+        api.get("/users"),
+        api.get("/places"),
+        api.get("/subplaces"),
+        api.get("/hotels"),
+        api.get("/bookings"),
+        api.get("/ratings"),
+      ]);
+
+      // Process results with error handling
+      let users: User[] = usersRes.status === 'fulfilled' && Array.isArray(usersRes.value.data) 
+        ? usersRes.value.data : [];
       
-      let users: User[] = [];
-      let places: Place[] = [];
-      let subPlaces: SubPlace[] = [];
-      let hotels: Hotel[] = [];
+      let places: Place[] = placesRes.status === 'fulfilled' && Array.isArray(placesRes.value.data) 
+        ? placesRes.value.data : [];
+      
+      const subPlaces: SubPlace[] = subPlacesRes.status === 'fulfilled' && Array.isArray(subPlacesRes.value.data) 
+        ? subPlacesRes.value.data : [];
+      
+      let hotels: Hotel[] = hotelsRes.status === 'fulfilled' && Array.isArray(hotelsRes.value.data) 
+        ? hotelsRes.value.data : [];
+      
+      // Process bookings with nested data handling
       let bookings: Booking[] = [];
-      let ratings: Rating[] = [];
-
-      // Fetch users
-      try {
-        const usersRes = await api.get("/users");
-        users = Array.isArray(usersRes.data) ? usersRes.data : [];
-        // console.log("Users fetched:", users.length, users);
-      } catch {
-        // console.error("Error fetching users:", err);
-      }
-
-      // Fetch places
-      try {
-        const placesRes = await api.get("/places");
-        places = Array.isArray(placesRes.data) ? placesRes.data : [];
-        // console.log("Places fetched:", places.length, places);
-      } catch {
-        // console.error("Error fetching places:", err);
-      }
-
-      // Fetch subplaces
-      try {
-        const subPlacesRes = await api.get("/subplaces");
-        subPlaces = Array.isArray(subPlacesRes.data) ? subPlacesRes.data : [];
-        // console.log("SubPlaces fetched:", subPlaces.length, subPlaces);
-      } catch {
-        // console.error("Error fetching subplaces:", err);
-      }
-
-      // Fetch hotels
-      try {
-        const hotelsRes = await api.get("/hotels");
-        hotels = Array.isArray(hotelsRes.data) ? hotelsRes.data : [];
-        // console.log("Hotels fetched:", hotels.length, hotels);
-      } catch {
-        // console.error("Error fetching hotels:", err);
-      }
-
-      // Fetch bookings
-      try {
-        const bookingsRes = await api.get("/bookings");
-        // console.log("Raw bookings response:", bookingsRes);
-        
-        // Check if data is nested or in a different structure
-        let bookingsData = bookingsRes.data;
+      if (bookingsRes.status === 'fulfilled') {
+        let bookingsData = bookingsRes.value.data;
         if (bookingsData && typeof bookingsData === 'object') {
-          // Check common API response patterns
           if (bookingsData.bookings) bookingsData = bookingsData.bookings;
           else if (bookingsData.data) bookingsData = bookingsData.data;
           else if (bookingsData.results) bookingsData = bookingsData.results;
         }
-        
         bookings = Array.isArray(bookingsData) ? bookingsData : [];
-        // console.log("Bookings processed:", bookings.length);
-        
-        // Log first booking structure for debugging
-        if (bookings.length > 0) {
-          // console.log("First booking structure:", JSON.stringify(bookings[0], null, 2));
-        }
-      } catch {
-        // console.error("Error fetching bookings:", err);
       }
-
-      // Fetch ratings
-      try {
-        const ratingsRes = await api.get("/ratings");
-        ratings = Array.isArray(ratingsRes.data) ? ratingsRes.data : [];
-        // console.log("Ratings fetched:", ratings.length, ratings);
-      } catch {
-        // console.error("Error fetching ratings:", err);
-      }
+      
+      let ratings: Rating[] = ratingsRes.status === 'fulfilled' && Array.isArray(ratingsRes.value.data) 
+        ? ratingsRes.value.data : [];
 
       // If no data from backend, use demo data for showcase
       if (users.length === 0 && places.length === 0 && hotels.length === 0) {
